@@ -55,3 +55,15 @@ end;
 display(imagenObjetos);
 
 #save("imagenProcesada.jpg", imagenObjetos)
+gray_img = Gray.(imagenObjetos);
+pixels = convert(Array{Float64}, gray_img);
+
+n_pixels = length(pixels)
+
+# Cuenta el número de píxeles blancos (valor = 1) y negros (valor = 0)
+n_white_pixels = count(x -> x == 1, pixels);
+
+porcentaje = n_white_pixels/n_pixels;
+# Imprime los resultados
+println("Número de píxeles blancos: $n_white_pixels");
+println("Porcentaje de pixeles blancos: $porcentaje");
