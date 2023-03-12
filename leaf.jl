@@ -2,11 +2,6 @@
 using FileIO
 using Images
 
-#alto entre anho del bounding box
-#centro de masa, estara desplazado si es irregular, comparar con total bouding box
-#longitud del camino de pixeles de la silueta (tiene que ser relativo, dividido entre el total del bounding box)
-#cuanto rellena la hoja el bounding box
-# intensidad de los pixeles ?
 ######################################################################################################################
 
 imagen = load("Alnus/314.jpg"); 
