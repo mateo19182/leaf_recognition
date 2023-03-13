@@ -19,8 +19,8 @@ number of silhouette leaf pixels / number of bounding box pixels
 - [ ] Process files and create a .data (check example.data)
 - [ ] Rna - WIP(P)
 - [ ] auxiliar functinos - WIP(P)
-- [ ] SVM 
-- [ ] KNN
+- [ ] SVM - WIP (M)
+- [ ] KNN - Wip (I)
 - [ ] DECISSION TREES - WIP (G)
 
 - [ ] FINISH MEMORY
