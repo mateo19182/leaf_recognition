@@ -10,7 +10,7 @@ number of leaf pixels / number of bounding box pixels ,
 center of mass compare with total bounding box,
 number of silhouette leaf pixels / number of bounding box pixels
 ***
-### TODO:
+### TODO 1ST APPROACH:
 - [x] Bounding box 
 - [x] Center of mass
 - [x] Number of white and black pixels
@@ -18,8 +18,13 @@ number of silhouette leaf pixels / number of bounding box pixels
 - [ ] Process files and create a .data (check example.data)
 - [ ] Rna - WIP
 - [ ] auxiliar functinos - WIP
+- [ ] SVM 
+- [ ] KNN
+- [ ] DECISSION TREES
+
+- [ ] FINISH MEMORY
 ***
 ### Future:
 1. change files names, better meaningful 
-2. featute: pixels intensity (?)
-
+2. featute: pixels intensity (?) (2ND APPROach)
+3. More classes (NEW APPROACH)
