@@ -29,3 +29,4 @@ number of silhouette leaf pixels / number of bounding box pixels
 1. change files names, better meaningful 
 2. featute: pixels intensity (?) (2ND APPROach)
 3. More classes (NEW APPROACH)
+4. Simetria Eje X e Y
