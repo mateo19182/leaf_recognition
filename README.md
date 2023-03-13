@@ -12,7 +12,7 @@ number of silhouette leaf pixels / number of bounding box pixels
 ***
 ### TODO:
 - [x] Bounding box 
-- [ ] Center of mass
+- [x] Center of mass
 - [x] Number of white and black pixels
 - [ ] silhouette number of pixels 
 - [ ] Process files and create a .data (check example.data)
