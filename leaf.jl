@@ -1,6 +1,16 @@
 
 using FileIO
 using Images
+######################################################################################################################
+#Funciones#
+
+function border(img)
+    corners =  fastcorners(img, 11, 0.1)
+    #img_copy = RGB.(img)
+    #img_copy[corners] .= RGB(1.0, 0.0, 0.0)
+    #display(img_copy)
+    return count(corners)
+end
 
 ######################################################################################################################
 
@@ -62,3 +72,5 @@ porcentaje = n_white_pixels/n_pixels;
 # Imprime los resultados
 println("Número de píxeles blancos: $n_white_pixels");
 println("Porcentaje de pixeles blancos: $porcentaje");
+n_pixels_border = border(gray_img)
+println("numero de pixeles en los bordes: $n_pixels_border")
