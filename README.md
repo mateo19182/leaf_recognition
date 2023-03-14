@@ -16,7 +16,7 @@ number of silhouette leaf pixels / number of bounding box pixels
 - [x] Center of mass
 - [x] Number of white and black pixels
 - [x] silhouette number of pixels  
-- [ ] Process files and create a .data (check example.data)
+- [x] Process files and create a .data (check example.data) WIP (B)
 - [ ] Rna - WIP(P)
 - [ ] auxiliar functinos - WIP(P)
 - [ ] SVM - WIP (M)
