@@ -19,6 +19,10 @@ function holdOut(numPatrones::Int, porcentajeTest::Float64)
 end
 
 
+function Euclidean(x::Vector{Float32}, y::Vector{Float32})
+    return sqrt(sum((x[i] - y[i])^2 for i in 1:length(x)))
+end
+
     # Preguntar ticher si hace falta
 
 # function oneHotEncoding(feature::AbstractArray{<:Any,1},
