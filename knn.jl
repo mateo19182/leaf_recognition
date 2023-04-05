@@ -1,13 +1,11 @@
 using DelimitedFiles
 using StatsBase
 using LinearAlgebra
-
-
 include("functions.jl");
 # load dataset
-dataset = readdlm("example.data",',');
-inputs = dataset[:,1:4];
-targets = dataset[:,5];
+dataset = readdlm("samples.data",',');
+inputs = dataset[:,1:3];
+targets = dataset[:,end];
 inputs = convert(Array{Float32,2},inputs);
 targets = convert(Array{String,1}, targets);
 @assert (size(inputs,1)==size(targets,1)) "Error: Diff rows numbers on inputs and targets matrixes " 
@@ -42,15 +40,19 @@ function knn(train_inputs::Matrix{Float32}, train_targets::Vector{String}, test_
     return mode(nearest_targets)
 end
 
-# train kNN classifier on train set and evaluate on test set
-k = 3
-num_correct = 0
-for i in 1:length(test_indexes)
-    pred = knn(train_inputs, train_targets, test_inputs[:, i], k)
-    if pred == test_targets[i]
-        num_correct += 1
+# train kNN  on train set and evaluate on test set
+function evaluacion()
+    k = 3  # número de vecinos cercanos a considerar
+    correct = 0  # contador de clasificaciones correctas
+    for i in 1:length(test_indexes)
+        
+        predicted_target = knn(train_inputs, train_targets, test_inputs[:, i], k)
+        if predicted_target == test_targets[i]
+            #suma mas uno al contador
+            correct = correct + 1
+        end
     end
+    return correct / length(test_targets)
 end
-accuracy = num_correct / length(test_indexes)
-
-println("kNN accuracy: ", accuracy)
+accuracy = evaluacion()
+println("Accuracy: $accuracy")
