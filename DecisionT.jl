@@ -4,10 +4,12 @@ using Random;
 using Flux;
 using Flux.Losses;
 using Statistics;
+using CSV;
 using XLSX:readdata;
 using ScikitLearn
 using Random:seed!
 @sk_import tree: DecisionTreeClassifier
+
 
 
 
@@ -245,14 +247,23 @@ end;
 normalizeMinMax!(dataset::Array{Float64,2}; dataInRows=true) = normalizeMinMax!(dataset, calculateMinMaxNormalizationParameters(dataset; dataInRows=dataInRows); dataInRows=dataInRows);
 
 
+
 numFolds = 10;
 
+dataset = readdlm("samples.data",',');
+inputs = dataset[:,1:3];
+targets = dataset[:,end];
+inputs = convert(Array{Float64,2},inputs);
+targetsString = convert(Array{String,1}, targets);
 
-inputs = convert(Array{Float64,2}, readdata("Medidas.xlsx", "1ª iter", "B2:C62"));
-targets = convert(Array{Bool,2}, readdata("Medidas.xlsx", "1ª iter", "D2:D62"));
-# Normalizamos las entradas, a pesar de que algunas se vayan a utilizar para test
-normalizeMinMax!(inputs);
 maxDepths = [2;3;4;5;7];
+
+targets = map(x -> x == "Alnus", targetsString)
+
+targets = reshape(targets,80,1)
+
+
+
 
 for maxDepth in maxDepths
     println("Profundidad: $maxDepth");
