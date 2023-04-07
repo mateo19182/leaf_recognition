@@ -41,7 +41,7 @@ function writeData(imgArray, type::String)
         formaimg=(y2-y1)/(x2-x1);
         total_pixels_bb=(y2-y1)*(x2-x1)
 
-        #display(imagenObjetos);
+        display(imagenObjetos);
 
         #save("imagenProcesada.jpg", imagenObjetos)
         gray_img = Gray.(imagenObjetos);

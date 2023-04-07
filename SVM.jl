@@ -7,8 +7,9 @@ include("functions.jl");
 
 @sk_import svm: SVC 
 
-porcentajeTest=0.5;
-numEjecuciones = 50;
+
+porcentajeTest=0.3;     
+numEjecuciones = 50;    
 
 bd = readdlm("samples.data",',');
 entrada = bd[:,1:3];
@@ -25,17 +26,18 @@ precisionesTest = Array{Float64,1}();
 x = zeros(0)
 
 
-for j in 1:100
-    println(" C: ", j * 1000)
+for j in 1:50
+    println(" C: ", j)
     for numEjecucion in 1:numEjecuciones
         println("Ejecucion ", numEjecucion);
-        parameters = Dict("kernel" => "rbf", "degree" => 3, "gamma" => 2, "C"=> 1); 
 
+        # Radial Basis Function (RBF) seems to be work the best, there is also linear, sigmoid and polynomial
+        #C is 1 by default and it’s a reasonable default. If you have a lot of noisy observations, decrease C corresponds to more regularization.
+        #gamma defines how much influence a single training example has. The larger gamma is, the closer other examples must be to be affected.
+        parameters = Dict("kernel" => "rbf", "gamma" => "auto", "C"=> j*50); 
         (indicesPatronesEntrenamiento, indicesPatronesTest) = holdOut(numPatrones, porcentajeTest);
-
-        model = SVC(kernel=parameters["kernel"], degree=parameters["degree"], gamma=parameters["gamma"], C=parameters["C"]);
+        model = SVC(kernel=parameters["kernel"], gamma=parameters["gamma"], C=parameters["C"]);
         
-        # Ajustamos el model, solo con los patrones de entrenamiento
         fit!(model, entrada[indicesPatronesEntrenamiento,:], salida[indicesPatronesEntrenamiento]);
 
         # Calculamos la clasificacion de los patrones de entrenamiento
@@ -44,7 +46,6 @@ for j in 1:100
         distanciasHiperplano = decision_function(model, entrada[indicesPatronesEntrenamiento,:]);
         # Calculamos la precision en el conjunto de entrenamiento y la mostramos por pantalla
         precisionEntrenamiento = 100 * mean(clasificacionEntrenamiento .== salida[indicesPatronesEntrenamiento]);
-        # println("   Precision en el conjunto de entrenamiento: $precisionEntrenamiento %");
 
         # Calculamos la clasificacion de los patrones de test
         clasificacionTest = predict(model, entrada[indicesPatronesTest,:]);
@@ -52,9 +53,6 @@ for j in 1:100
         distanciasHiperplano = decision_function(model, entrada[indicesPatronesTest,:]);
         # Calculamos la precision en el conjunto de test y la mostramos por pantalla
         precisionTest = 100 * mean(clasificacionTest .== salida[indicesPatronesTest]);
-        # println("   Precision en el conjunto de test: $precisionTest %");
-
-        # Y guardamos esos valores de precision obtenidos en esta ejecucion
         push!(precisionesEntrenamiento, precisionEntrenamiento);
         push!(precisionesTest, precisionTest);
 
@@ -65,12 +63,4 @@ for j in 1:100
     append!(x, mean(precisionesTest))
 end
 
-png(plot(x, label = "", title = "SVM", xlabel = "C (x1000)", ylabel = "Precisión tests"),"graphSVM");
-
-
-println(keys(model));
-
-model.C
-model.support_vectors_
-model.support_
-    
+png(plot(x, label = "", title = "SVM", xlabel = "C*50", ylabel = "Precisión en el Test"),"SVM");
