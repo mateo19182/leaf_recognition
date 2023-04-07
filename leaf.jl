@@ -6,9 +6,9 @@ using Images
 
 function border(img)
     corners =  fastcorners(img, 11, 0.1)
-    #img_copy = RGB.(img)
-    #img_copy[corners] .= RGB(1.0, 0.0, 0.0)
-    ###display(img_copy)
+    img_copy = RGB.(img)
+    img_copy[corners] .= RGB(1.0, 0.0, 0.0)
+    isplay(img_copy)
     return count(corners)
 end
 
