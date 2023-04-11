@@ -12,6 +12,21 @@ function border(img)
     return count(corners)
 end
 
+function sym(imagenObjetos)
+    img_size = size(imagenObjetos);
+    img_croppedx1= @view imagenObjetos[ : , floor(Int, 1/2*img_size[2]) : floor(Int, img_size[2])  ]
+    img_croppedx2= @view imagenObjetos[ : , floor(Int, 1) : floor(Int, 1/2*img_size[2]) ]
+    img_croppedx2r=imresize(img_croppedx2, size(img_croppedx1));
+    img_croppedy1= @view imagenObjetos[ floor(Int, 1/2*img_size[1]+1) : floor(Int, img_size[1]), : ]
+    img_croppedy2= @view imagenObjetos[ floor(Int, 1) : floor(Int, 1/2*img_size[1]) , : ]
+    img_croppedy2r=imresize(img_croppedy2, size(img_croppedy1));
+    img_flipx1 = reverse(img_croppedx1, dims=2)
+    img_flipy1 = reverse(img_croppedy1, dims=1)
+    sym_y=assess_ssim(img_croppedy2r, img_flipy1);
+    sym_x=assess_ssim(img_croppedx2r, img_flipx1);
+    return (sym_x, sym_y)
+end
+
 function writeData(imgArray, type::String)
     for imagen in imgArray
         matrizBN = gray.(imagen);
@@ -41,37 +56,32 @@ function writeData(imgArray, type::String)
         formaimg=(y2-y1)/(x2-x1);
         total_pixels_bb=(y2-y1)*(x2-x1)
 
-        display(imagenObjetos);
-
+        #display(imagenObjetos);
         #save("imagenProcesada.jpg", imagenObjetos)
         gray_img = Gray.(imagenObjetos);
         pixels = convert(Array{Float64}, gray_img);
 
         n_pixels = length(pixels)
 
-        # Cuenta el número de píxeles blancos (valor = 1) y negros (valor = 0)
+        # Cuenta el número de píxeles blancos (valor = 1) comparado con los negros
         n_white_pixels = count(x -> x == 1, pixels);
+        porcentaje_blancos = n_white_pixels/total_pixels_bb;
 
-        porcentaje = n_white_pixels/total_pixels_bb;
-        # Imprime los resultados
-
+        # Cuenta el número de píxeles del borde comparado con el total de blancos
         n_pixels_border = border(gray_img)
-        porcentajeborde = n_pixels_border/n_white_pixels;
-
-        write(dataTxt, (string(porcentaje)*","*string(porcentajeborde)*","*string(formaimg)*","*type*"\n"));
-
-        #simetria eje X
-            #img_size = size(imagenObjetos);
-            #img_croppedx1= @view imagenObjetos[ : , floor(Int, 1/2*img_size[2]) : floor(Int, img_size[2]) ]
-            #img_croppedx2= @view imagenObjetos[ : , floor(Int, 1) : floor(Int, 1/2*img_size[2]) ]
-        #simetria eje Y
-            #img_croppedy1= @view imagenObjetos[ floor(Int, 1/2*img_size[1]) : floor(Int, img_size[1]), : ]
-            #img_croppedy2= @view imagenObjetos[ floor(Int, 1) : floor(Int, 1/2*img_size[1]) , : ]
-            #img_flipx1 = reverse(img_croppedx1, dims=2)
-            #img_flipy1 = reverse(img_croppedy1, dims=1)
-            #plain_diffview = @. img - img_r
+        porcentaje_borde = n_pixels_border/n_white_pixels;
+        
+        #simetria eje X, eje Y
+        (sym_x, sym_y) = sym(gray_img);
 
         #centro de masa
+            #TODO
+
+        write(dataTxt, (string(porcentaje_blancos)*","*string(porcentaje_borde)*","*string(formaimg)*","*string(sym_x)*","*string(sym_y)*","*type*"\n"));
+
+
+
+        # Imprime los resultados
 
         #numero de pixeles blancos / total pixeles bb
         #println("Porcentaje de borde: $porcentaje");

@@ -12,7 +12,7 @@ porcentajeTest=0.3;
 numEjecuciones = 50;    
 
 bd = readdlm("samples.data",',');
-entrada = bd[:,1:3];
+entrada = bd[:,1:5];
 entrada = convert(Array{Float64}, entrada);
 salida = bd[:,end];
 salida = convert(Array{String}, salida);
