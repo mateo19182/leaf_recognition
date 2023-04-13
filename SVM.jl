@@ -36,6 +36,7 @@ for j in 1:50
         #gamma defines how much influence a single training example has. The larger gamma is, the closer other examples must be to be affected.
         parameters = Dict("kernel" => "rbf", "gamma" => "auto", "C"=> j*50); 
         (indicesPatronesEntrenamiento, indicesPatronesTest) = holdOut(numPatrones, porcentajeTest);
+        #The multiclass support is handled according to a one-vs-one scheme.
         model = SVC(kernel=parameters["kernel"], gamma=parameters["gamma"], C=parameters["C"]);
         
         fit!(model, entrada[indicesPatronesEntrenamiento,:], salida[indicesPatronesEntrenamiento]);
@@ -52,6 +53,10 @@ for j in 1:50
         # Calculamos las distancias al hiperplano de esos mismos patrones
         distanciasHiperplano = decision_function(model, entrada[indicesPatronesTest,:]);
         # Calculamos la precision en el conjunto de test y la mostramos por pantalla
+        println(clasificacionTest);
+        println(salida[indicesPatronesTest]
+        );
+
         precisionTest = 100 * mean(clasificacionTest .== salida[indicesPatronesTest]);
         push!(precisionesEntrenamiento, precisionEntrenamiento);
         push!(precisionesTest, precisionTest);

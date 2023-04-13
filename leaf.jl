@@ -101,8 +101,12 @@ end;
 
 alnusImg = (load.("Alnus/".*readdir("Alnus")));
 eucImg = (load.("Eucalyptus/".*readdir("Eucalyptus")));
+corImg = (load.("Cornus/".*readdir("Cornus")));
+
 dataTxt = open("samples.data","w");
 
 writeData(alnusImg, "Alnus");
 writeData(eucImg, "Eucalyptus");
+writeData(corImg, "Cornus");
+
 close(dataTxt);

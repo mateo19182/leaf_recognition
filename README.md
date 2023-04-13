@@ -12,11 +12,7 @@ center of mass compare with total bounding box,
 number of silhouette leaf pixels / number of bounding box pixels
 ***
 ### TODO 1ST APPROACH:
-- [x] Bounding box 
 - [ ] Center of mass (M)
-- [x] Number of white and black pixels
-- [x] silhouette number of pixels  
-- [x] Process files and create a .data (check example.data) WIP (B)
 - [ ] Rna - WIP(P)
 - [ ] auxiliar functinos - WIP(P)
 - [ ] SVM - WIP (M)
@@ -24,6 +20,9 @@ number of silhouette leaf pixels / number of bounding box pixels
 - [ ] DECISSION TREES - WIP (G)
 
 - [ ] FINISH MEMORY
+- [ ] arreglar introduccion y descripcion del problema
+- [ ] completar bibliografia e imagenes
+- [ ] Poner matrices de confusión y aumentar el número de configuraciones de cada algoritmo
 ***
 ### Future:
 1. change files names, better meaningful 
