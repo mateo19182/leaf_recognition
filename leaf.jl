@@ -4,13 +4,21 @@ using Images
 ######################################################################################################################
 #Funciones#
 
-function border(img)
-    corners =  fastcorners(img, 11, 0.1)
-    #img_copy = RGB.(img)
-    #img_copy[corners] .= RGB(1.0, 0.0, 0.0)
-    #isplay(img_copy)
-    return count(corners)
-end
+
+function loadData()
+    alnusImg = (load.("Alnus/".*readdir("Alnus")));
+    eucImg = (load.("Eucalyptus/".*readdir("Eucalyptus")));
+    corImg = (load.("Cornus/".*readdir("Cornus")));
+
+    dataTxt = open("samples.data","w");
+
+    writeData(alnusImg, "Alnus", dataTxt);
+    writeData(eucImg, "Eucalyptus", dataTxt);
+    writeData(corImg, "Cornus", dataTxt);
+
+    close(dataTxt);
+end;
+
 
 function sym(imagenObjetos)
     img_size = size(imagenObjetos);
@@ -27,7 +35,7 @@ function sym(imagenObjetos)
     return (sym_x, sym_y)
 end
 
-function writeData(imgArray, type::String)
+function writeData(imgArray, type::String, dataTxt)
     for imagen in imgArray
         matrizBN = gray.(imagen);
         labelArray = ImageMorphology.label_components(matrizBN);
@@ -94,19 +102,10 @@ function writeData(imgArray, type::String)
     end;
 end;
 
-######################################################################################################################
-
-#imagen = load("Alnus/314.jpg"); 
-##display(imagen);
-
-alnusImg = (load.("Alnus/".*readdir("Alnus")));
-eucImg = (load.("Eucalyptus/".*readdir("Eucalyptus")));
-corImg = (load.("Cornus/".*readdir("Cornus")));
-
-dataTxt = open("samples.data","w");
-
-writeData(alnusImg, "Alnus");
-writeData(eucImg, "Eucalyptus");
-writeData(corImg, "Cornus");
-
-close(dataTxt);
+function border(img)
+    corners =  fastcorners(img, 11, 0.1)
+    #img_copy = RGB.(img)
+    #img_copy[corners] .= RGB(1.0, 0.0, 0.0)
+    #isplay(img_copy)
+    return count(corners)
+end
