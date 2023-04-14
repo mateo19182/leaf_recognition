@@ -5,6 +5,7 @@ using DelimitedFiles
 
 include("leaf.jl");
 include("functions.jl");
+include("knn.jl");
 
 
 #Fijar la semilla aleatoria para garantizar la repetibilidad de los resultados.
@@ -13,12 +14,9 @@ Random.seed!(1);
 #Cargar los datos y extraer las características de esa aproximación.
 
 #loadData();
-bd = readdlm("samples.data",',');
-entrada = bd[:,1:5];
-entrada = convert(Array{Float64}, entrada);
-normalmaxmin(entrada);
-salida = bd[:,end];
-salida = convert(Array{String}, salida);
+inputs , targets = loadData(5);
+println("Tamaño de la matriz de entradas: ", size(inputs,1), "x", size(inputs,2), " de tipo ", typeof(inputs));
+println("Longitud del vector de salidas deseadas antes de codificar: ", length(targets), " de tipo ", typeof(targets));
 
 numFolds = 10;
 
@@ -61,10 +59,10 @@ modelHyperparameters["kernel"] = kernel;
 modelHyperparameters["kernelDegree"] = kernelDegree;
 modelHyperparameters["kernelGamma"] = kernelGamma;
 modelHyperparameters["C"] = C;
-modelCrossValidation(:SVM, modelHyperparameters, inputs, targets, crossValidationIndices);
+modelCrossValidation(svm(), modelHyperparameters, inputs, targets, crossValidationIndices);
 
 # Entrenamos los arboles de decision
-modelCrossValidation(:DecisionTree, Dict("maxDepth" => maxDepth), inputs, targets, crossValidationIndices);
+#modelCrossValidation(:DecisionTree, Dict("maxDepth" => maxDepth), inputs, targets, crossValidationIndices);
 
 # Entrenamos los kNN
-modelCrossValidation(:kNN, Dict("numNeighbors" => numNeighbors), inputs, targets, crossValidationIndices);
+modelCrossValidation(knn(), Dict("numNeighbors" => numNeighbors), inputs, targets, crossValidationIndices);

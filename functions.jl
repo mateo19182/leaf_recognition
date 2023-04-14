@@ -17,7 +17,17 @@ function holdOut(numPatrones::Int, porcentajeTest::Float64)
 end
 
 
-function modelCrossValidation(modelType::Symbol, modelHyperparameters::Dict, inputs::AbstractArray{<:Real,2}, targets::AbstractArray{<:Any,1}, crossValidationIndices::Array{Int64,1})
+function loadData(index : Int64)
+    dataset = readdlm("samples.data",',');
+    inputs = convert(Array{Float32,2}, dataset[:,1:index]);
+    inputs = convert(Array{Float32}, inputs);
+    targets = dataset[:,end]
+    targets = convert(Array{String}, targets);
+    return inputs, targets; 
+end
+
+
+function modelCrossValidation(fun , modelHyperparameters::Dict, inputs::AbstractArray{<:Real,2}, targets::AbstractArray{<:Any,1}, crossValidationIndices::Array{Int64,1})
     # Comprobamos que el numero de patrones coincide
     @assert(size(inputs,1)==length(targets));
 
@@ -33,85 +43,7 @@ function modelCrossValidation(modelType::Symbol, modelHyperparameters::Dict, inp
     # Para cada fold, entrenamos
     for numFold in 1:numFolds
 
-        # Si vamos a usar unos de estos 3 modelos
-        if (modelType==:SVM) || (modelType==:DecisionTree) || (modelType==:kNN)
-
-            # Dividimos los datos en entrenamiento y test
-            trainingInputs    = inputs[crossValidationIndices.!=numFold,:];
-            testInputs        = inputs[crossValidationIndices.==numFold,:];
-            trainingTargets   = targets[crossValidationIndices.!=numFold];
-            testTargets       = targets[crossValidationIndices.==numFold];
-
-            if modelType==:SVM
-                model = SVC(kernel=modelHyperparameters["kernel"], degree=modelHyperparameters["kernelDegree"], gamma=modelHyperparameters["kernelGamma"], C=modelHyperparameters["C"]);
-            elseif modelType==:DecisionTree
-                model = DecisionTreeClassifier(max_depth=modelHyperparameters["maxDepth"], random_state=1);
-            elseif modelType==:kNN
-                model = KNeighborsClassifier(modelHyperparameters["numNeighbors"]);
-            end;
-
-            # Entrenamos el modelo con el conjunto de entrenamiento
-            model = fit!(model, trainingInputs, trainingTargets);
-
-            # Pasamos el conjunto de test
-            testOutputs = predict(model, testInputs);
-
-            # Calculamos las metricas correspondientes con la funcion desarrollada en la practica anterior
-            (acc, _, _, _, _, _, F1, _) = confusionMatrix(testOutputs, testTargets);
-
-        else
-
-            # Vamos a usar RR.NN.AA.
-            @assert(modelType==:ANN);
-
-            # Dividimos los datos en entrenamiento y test
-            trainingInputs    = inputs[crossValidationIndices.!=numFold,:];
-            testInputs        = inputs[crossValidationIndices.==numFold,:];
-            trainingTargets   = targets[crossValidationIndices.!=numFold,:];
-            testTargets       = targets[crossValidationIndices.==numFold,:];
-
-            # Como el entrenamiento de RR.NN.AA. es no determinístico, hay que entrenar varias veces, y
-            #  se crean vectores adicionales para almacenar las metricas para cada entrenamiento
-            testAccuraciesEachRepetition = Array{Float64,1}(undef, modelHyperparameters["numExecutions"]);
-            testF1EachRepetition         = Array{Float64,1}(undef, modelHyperparameters["numExecutions"]);
-
-            # Se entrena las veces que se haya indicado
-            for numTraining in 1:modelHyperparameters["numExecutions"]
-
-                if modelHyperparameters["validationRatio"]>0
-
-                    # Para el caso de entrenar una RNA con conjunto de validacion, hacemos una división adicional:
-                    #  dividimos el conjunto de entrenamiento en entrenamiento+validacion
-                    #  Para ello, hacemos un hold out
-                    (trainingIndices, validationIndices) = holdOut(size(trainingInputs,1), modelHyperparameters["validationRatio"]*size(trainingInputs,1)/size(inputs,1));
-                    # Con estos indices, se pueden crear los vectores finales que vamos a usar para entrenar una RNA
-
-                    # Entrenamos la RNA, teniendo cuidado de codificar las salidas deseadas correctamente
-                    ann, = trainClassANN(modelHyperparameters["topology"], (trainingInputs[trainingIndices,:],   trainingTargets[trainingIndices,:]),
-                        validationDataset = (trainingInputs[validationIndices,:], trainingTargets[validationIndices,:]),
-                        testDataset =       (testInputs,                          testTargets);
-                        maxEpochs=modelHyperparameters["maxEpochs"], learningRate=modelHyperparameters["learningRate"], maxEpochsVal=modelHyperparameters["maxEpochsVal"]);
-
-                else
-
-                    # Si no se desea usar conjunto de validacion, se entrena unicamente con conjuntos de entrenamiento y test,
-                    #  teniendo cuidado de codificar las salidas deseadas correctamente
-                    ann, = trainClassANN(modelHyperparameters["topology"], (trainingInputs, trainingTargets),
-                        testDataset = (testInputs,     testTargets);
-                        maxEpochs=modelHyperparameters["maxEpochs"], learningRate=modelHyperparameters["learningRate"]);
-
-                end;
-
-                # Calculamos las metricas correspondientes con la funcion desarrollada en la practica anterior
-                (testAccuraciesEachRepetition[numTraining], _, _, _, _, _, testF1EachRepetition[numTraining], _) = confusionMatrix(collect(ann(testInputs')'), testTargets);
-
-            end;
-
-            # Calculamos el valor promedio de todos los entrenamientos de este fold
-            acc = mean(testAccuraciesEachRepetition);
-            F1  = mean(testF1EachRepetition);
-
-        end;
+        acc , F1 = fun(modelHyperparameters,inputs,targets,crossValidationIndices,numFold);
 
         # Almacenamos las 2 metricas que usamos en este problema
         testAccuracies[numFold] = acc;
