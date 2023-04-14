@@ -1,67 +1,68 @@
+using ScikitLearn
 using DelimitedFiles
-using StatsBase
-using LinearAlgebra
+using Statistics
+using Plots
 include("functions.jl");
 
-# load dataset
-dataset = readdlm("samples.data",',');
-inputs = dataset[:,1:3];
-targets = dataset[:,end];
-inputs = convert(Array{Float32,2},inputs);
-targets = convert(Array{String,1}, targets);
+# Importar módulo neighbors de ScikitLearn
+@sk_import neighbors: KNeighborsClassifier
+@sk_import metrics: accuracy_score
 
-#variables
-pcTest = 0.5;
+# Cargar datos
+dataset = readdlm("samples.data",',')
+inputs = dataset[:,1:5]
+targets = dataset[:,end]
+inputs = convert(Array{Float64,2}, inputs)
+targets = convert(Array{String,1}, targets)
 
-@assert (size(inputs,1)==size(targets,1)) "Error: Diff rows numbers on inputs and targets matrixes " 
-posibletargets = unique(targets);
-classtoclass = "Alnus";
-@assert (isa(classtoclass, String)) "Error : class to classify is not String";
-@assert (any(classtoclass .== posibletargets)) "Error: class to clasify is not a possible one";
-desiredetargets = Array((posibletargets .== classtoclass)');
-inputs = Array(inputs)';
+# Definir tamaño del conjunto de test
+pcTest = 0.3
+numEjecuciones = 50
 
-# apply holdout
-train_indexes, test_indexes = holdOut(size(inputs, 2), pcTest)
+# Dividir datos en conjunto de entrenamiento y test
+indicesEntrenamiento, indicesTest = holdOut(size(inputs, 1), pcTest)
+inputsEntrenamiento = inputs[indicesEntrenamiento,:]
+targetsEntrenamiento = targets[indicesEntrenamiento]
+inputsTest = inputs[indicesTest,:]
+targetsTest = targets[indicesTest]
 
-# separate inputs and targets into train and test sets
-train_inputs = inputs[:, train_indexes]
-train_targets = targets[train_indexes]
-test_inputs = inputs[:, test_indexes]
-test_targets = targets[test_indexes]
+# Crear instancia de KNeighborsClassifier con el número de vecinos k
+#k = 3
 
-# define kNN function
-function knn(train_inputs::Matrix{Float32}, train_targets::Vector{String}, test_input::Vector{Float32}, k::Int)
-    # calculate distances between test_input and train_inputs
-    distances = [Euclidean(test_input, train_inputs[:, i]) for i in 1:size(train_inputs, 2)]
-    
-    # get indexes of k nearest neighbors
-    nearest_indexes = sortperm(distances)[1:k]
-    
-    # get corresponding targets of k nearest neighbors
-    nearest_targets = train_targets[nearest_indexes]
-    
-    # return most common target
-    return mode(nearest_targets)
+precisionesEntrenamiento = Array{Float64,1}();
+precisionesTest = Array{Float64,1}();
+x = zeros(0)
+function knn(k)
+    knn = KNeighborsClassifier(n_neighbors=k)
+
+    # Entrenar el modelo con los datos de entrenamiento
+    fit!(knn, inputsEntrenamiento, targetsEntrenamiento)
+
+    # Predecir las etiquetas de los datos de test
+    prediccionesTest = predict(knn, inputsTest)
+    prediccionesTrain= predict(knn, inputsEntrenamiento)
+
+    precisionTrain = 100*accuracy_score(targetsEntrenamiento, prediccionesTrain)
+    # Calcular la precisión del modelo
+    precisionTest = 100*accuracy_score(targetsTest, prediccionesTest)
+    return precisionTest, precisionTrain
 end
 
-# train kNN  on train set and evaluate on test set
-function evaluacion()
-    k = 7 # número de vecinos cercanos a considerar
-    correct = 0  # contador de clasificaciones correctas
-    for i in 1:length(test_indexes)
-        
-        predicted_target = knn(train_inputs, train_targets, test_inputs[:, i], k)
-        x = test_targets[i]
-        print("predicted_target = $predicted_target \n")
-        print("test_targets = $x \n")
-        print("------------------------------------------------\n")
-        if predicted_target == test_targets[i]
-            #suma mas uno al contador
-            correct = correct + 1
-        end
-    end
-    return correct / length(test_targets)
+
+
+for k in 1:7
+        #println(" Vecino : ", k)
+        for numEjecucion in 1:numEjecuciones
+            precisionTest, precisionTrain = knn(k)
+            push!(precisionesEntrenamiento, precisionTrain);
+            push!(precisionesTest, precisionTest);
+
+        end;
+        #println("   Entrenamiento: ", mean(precisionesEntrenamiento), " %, desviacion tipica: ", std(precisionesEntrenamiento));
+        #println("   Test:          ", mean(precisionesTest), " %, desviacion tipica: ", std(precisionesTest));
+        println("",k," & ",mean(precisionesTest)," &  ", std(precisionesTest))
+        append!(x, mean(precisionesTest))
 end
-accuracy = evaluacion()
-println("Accuracy: $accuracy")
+
+#println("Precisión en conjunto de test: ", knn(k))
+png(plot(x, label = "",xlims=(0,7), ylims=(85,100), title = "KNN", xlabel = "K Vecinos", ylabel = "Precisión en el Test (%)", ),"KNN");

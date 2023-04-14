@@ -24,6 +24,7 @@ function Euclidean(x::Vector{Float32}, y::Vector{Float32})
 end
 
 
+
 # function oneHotEncoding(feature::AbstractArray{<:Any,1},
 # classes::AbstractArray{<:Any,1})
 # function oneHotEncoding(feature::AbstractArray{<:Any,1})
