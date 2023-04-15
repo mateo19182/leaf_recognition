@@ -2,10 +2,8 @@ using Random
 using ScikitLearn
 using DelimitedFiles 
 
-
 include("leaf.jl");
 include("functions.jl");
-
 
 #Fijar la semilla aleatoria para garantizar la repetibilidad de los resultados.
 Random.seed!(1);
@@ -19,6 +17,7 @@ entrada = convert(Array{Float64}, entrada);
 normalmaxmin(entrada);
 salida = bd[:,end];
 salida = convert(Array{String}, salida);
+numPatrones = size(entrada, 1);
 
 numFolds = 10;
 
@@ -43,7 +42,7 @@ maxDepth = 4;
 numNeighbors = 3;
 
 # Creamos los indices de validacion cruzada
-crossValidationIndices = crossvalidation(targets, numFolds);
+crossValidationIndices = crossvalidation(numPatrones, numFolds);
 
 # Entrenamos las RR.NN.AA.
 modelHyperparameters = Dict();
@@ -53,7 +52,7 @@ modelHyperparameters["validationRatio"] = validationRatio;
 modelHyperparameters["numExecutions"] = numRepetitionsANNTraining;
 modelHyperparameters["maxEpochs"] = numMaxEpochs;
 modelHyperparameters["maxEpochsVal"] = maxEpochsVal;
-modelCrossValidation(:ANN, modelHyperparameters, inputs, targets, crossValidationIndices);
+#modelCrossValidation(:ANN, modelHyperparameters, inputs, targets, crossValidationIndices);
 
 # Entrenamos las SVM
 modelHyperparameters = Dict();
@@ -61,10 +60,10 @@ modelHyperparameters["kernel"] = kernel;
 modelHyperparameters["kernelDegree"] = kernelDegree;
 modelHyperparameters["kernelGamma"] = kernelGamma;
 modelHyperparameters["C"] = C;
-modelCrossValidation(:SVM, modelHyperparameters, inputs, targets, crossValidationIndices);
+modelCrossValidation(:SVM, modelHyperparameters, entrada, salida, crossValidationIndices);
 
 # Entrenamos los arboles de decision
-modelCrossValidation(:DecisionTree, Dict("maxDepth" => maxDepth), inputs, targets, crossValidationIndices);
+#modelCrossValidation(:DecisionTree, Dict("maxDepth" => maxDepth), inputs, targets, crossValidationIndices);
 
 # Entrenamos los kNN
-modelCrossValidation(:kNN, Dict("numNeighbors" => numNeighbors), inputs, targets, crossValidationIndices);
+#modelCrossValidation(:kNN, Dict("numNeighbors" => numNeighbors), inputs, targets, crossValidationIndices);
