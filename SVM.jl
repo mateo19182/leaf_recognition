@@ -2,7 +2,6 @@ using ScikitLearn
 using DelimitedFiles 
 using Statistics
 using Plots
-using EvalMetrics
 
 include("functions.jl");
 
@@ -25,6 +24,7 @@ function SVM(modelHyperparameters::Dict, inputs::AbstractArray{<:Real,2}, target
 
     # Calculamos las metricas correspondientes con la funcion desarrollada en la practica anterior
     (acc, _, _, _, _, _, F1, _) = confusionMatrix(testOutputs, testTargets);
+    printConfusionMatrix(testOutputs, testTargets; weighted=true);
     return acc, F1;
 end
 

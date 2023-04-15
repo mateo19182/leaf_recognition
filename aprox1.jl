@@ -69,11 +69,13 @@ modelHyperparameters["kernelGamma"] = kernelGamma;
 modelHyperparameters["C"] = C;
 
 #modelCrossValidation(:SVM, modelHyperparameters, entrada, salida, crossValidationIndices);
-modelCrossValidation2(SVM, modelHyperparameters, inputs, targets, crossValidationIndices);
+(meanTestAccuracies, stdTestAccuracies, meanTestF1, stdTestF1) = modelCrossValidation2(SVM, modelHyperparameters, inputs, targets, crossValidationIndices);
+println("meanTestAccuracies= ", meanTestAccuracies);
 
 # Entrenamos los arboles de decision
 #modelCrossValidation2(:DecisionTree, Dict("maxDepth" => maxDepth), inputs, targets, crossValidationIndices);
 
 # Entrenamos los kNN
-modelCrossValidation2(knn, Dict("numNeighbors" => numNeighbors), inputs, targets, crossValidationIndices);
+#modelCrossValidation2(knn, Dict("numNeighbors" => numNeighbors), inputs, targets, crossValidationIndices);
 #modelCrossValidation(knn(), Dict("numNeighbors" => numNeighbors), inputs, targets, crossValidationIndices);
+

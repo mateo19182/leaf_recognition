@@ -6,9 +6,9 @@ using Images
 
 
 function loadData()
-    alnusImg = (load.("Alnus/".*readdir("Alnus")));
-    eucImg = (load.("Eucalyptus/".*readdir("Eucalyptus")));
-    corImg = (load.("Cornus/".*readdir("Cornus")));
+    alnusImg = (load.("datasets/Alnus/".*readdir("Alnus")));
+    eucImg = (load.("datasets/Eucalyptus/".*readdir("Eucalyptus")));
+    corImg = (load.("datasets/Cornus/".*readdir("Cornus")));
 
     dataTxt = open("samples.data","w");
 

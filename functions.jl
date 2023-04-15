@@ -2,9 +2,6 @@ using Random
 using Statistics
 
 
-@sk_import svm: SVC 
-@sk_import tree: DecisionTreeClassifier
-@sk_import neighbors: KNeighborsClassifier
 
 
 #solo hace falta normalizar el 3er atributo
@@ -57,8 +54,6 @@ function modelCrossValidation2(fun::Function , modelHyperparameters::Dict, input
         testF1[numFold]         = F1;
         println("Results in test in fold ", numFold, "/", numFolds, ": accuracy: ", 100*testAccuracies[numFold], " %, F1: ", 100*testF1[numFold], " %");
     end; # for numFold in 1:numFolds
-    println(modelType, ": Average test accuracy on a ", numFolds, "-fold crossvalidation: ", 100*mean(testAccuracies), ", with a standard deviation of ", 100*std(testAccuracies));
-    println(modelType, ": Average test F1 on a ", numFolds, "-fold crossvalidation: ", 100*mean(testF1), ", with a standard deviation of ", 100*std(testF1));
     return (mean(testAccuracies), std(testAccuracies), mean(testF1), std(testF1));
 end;
 
@@ -249,28 +244,6 @@ function confusionMatrix(outputs::AbstractArray{Bool,1}, targets::AbstractArray{
     return (acc, errorRate, recall, specificity, precision, NPV, F1, confMatrix)
 end;
 
-function oneHotEncoding(feature::AbstractArray{<:Any,1}, classes::AbstractArray{<:Any,1})
-    # Primero se comprueba que todos los elementos del vector esten en el vector de clases (linea adaptada del final de la practica 4)
-    @assert(all([in(value, classes) for value in feature]));
-    numClasses = length(classes);
-    @assert(numClasses>1)
-    if (numClasses==2)
-        # Si solo hay dos clases, se devuelve una matriz con una columna
-        oneHot = reshape(feature.==classes[1], :, 1);
-    else
-        # Si hay mas de dos clases se devuelve una matriz con una columna por clase
-        # Cualquiera de estos dos tipos (Array{Bool,2} o BitArray{2}) vale perfectamente
-        # oneHot = Array{Bool,2}(undef, length(targets), numClasses);
-        oneHot =  BitArray{2}(undef, length(feature), numClasses);
-        for numClass = 1:numClasses
-            oneHot[:,numClass] .= (feature.==classes[numClass]);
-        end;
-    end;
-    return oneHot;
-end;
-
-
-
 function confusionMatrix(outputs::AbstractArray{Bool,2}, targets::AbstractArray{Bool,2}; weighted::Bool=true)
     @assert(size(outputs)==size(targets));
     numClasses = size(targets,2);
@@ -333,7 +306,75 @@ function confusionMatrix(outputs::AbstractArray{Bool,2}, targets::AbstractArray{
     return (acc, errorRate, recall, specificity, precision, NPV, F1, confMatrix);
 end;
 
+function oneHotEncoding(feature::AbstractArray{<:Any,1}, classes::AbstractArray{<:Any,1})
+    # Primero se comprueba que todos los elementos del vector esten en el vector de clases (linea adaptada del final de la practica 4)
+    @assert(all([in(value, classes) for value in feature]));
+    numClasses = length(classes);
+    @assert(numClasses>1)
+    if (numClasses==2)
+        # Si solo hay dos clases, se devuelve una matriz con una columna
+        oneHot = reshape(feature.==classes[1], :, 1);
+    else
+        # Si hay mas de dos clases se devuelve una matriz con una columna por clase
+        # Cualquiera de estos dos tipos (Array{Bool,2} o BitArray{2}) vale perfectamente
+        # oneHot = Array{Bool,2}(undef, length(targets), numClasses);
+        oneHot =  BitArray{2}(undef, length(feature), numClasses);
+        for numClass = 1:numClasses
+            oneHot[:,numClass] .= (feature.==classes[numClass]);
+        end;
+    end;
+    return oneHot;
+end;
 
 function Euclidean(x::Vector{Float32}, y::Vector{Float32})
     return sqrt(sum((x[i] - y[i])^2 for i in 1:length(x)))
 end
+
+# Funciones auxiliares para visualizar por pantalla la matriz de confusion y las metricas que se derivan de ella
+function printConfusionMatrix(outputs::AbstractArray{Bool,2}, targets::AbstractArray{Bool,2}; weighted::Bool=true)
+    (acc, errorRate, recall, specificity, precision, NPV, F1, confMatrix) = confusionMatrix(outputs, targets; weighted=weighted);
+    numClasses = size(confMatrix,1);
+    writeHorizontalLine() = (for i in 1:numClasses+1 print("--------") end; println(""); );
+    writeHorizontalLine();
+    print("\t| ");
+    if (numClasses==2)
+        println(" - \t + \t|");
+    else
+        print.("Cl. ", 1:numClasses, "\t| ");
+    end;
+    println("");
+    writeHorizontalLine();
+    for numClassTarget in 1:numClasses
+        # print.(confMatrix[numClassTarget,:], "\t");
+        if (numClasses==2)
+            print(numClassTarget == 1 ? " - \t| " : " + \t| ");
+        else
+            print("Cl. ", numClassTarget, "\t| ");
+        end;
+        print.(confMatrix[numClassTarget,:], "\t| ");
+        println("");
+        writeHorizontalLine();
+    end;
+    println("Accuracy: ", acc);
+    println("Error rate: ", errorRate);
+    println("Recall: ", recall);
+    println("Specificity: ", specificity);
+    println("Precision: ", precision);
+    println("Negative predictive value: ", NPV);
+    println("F1-score: ", F1);
+    return (acc, errorRate, recall, specificity, precision, NPV, F1, confMatrix);
+end;
+
+function printConfusionMatrix(outputs::AbstractArray{<:Any,1}, targets::AbstractArray{<:Any,1}; weighted::Bool=true)
+    # Comprobamos que todas las clases de salida esten dentro de las clases de las salidas deseadas
+    @assert(all([in(output, unique(targets)) for output in outputs]));
+    classes = unique([targets; outputs]);
+    # Es importante calcular el vector de clases primero y pasarlo como argumento a las 2 llamadas a oneHotEncoding para que el orden de las clases sea el mismo en ambas matrices
+    return printConfusionMatrix(oneHotEncoding(outputs, classes), oneHotEncoding(targets, classes); weighted=weighted);
+end;
+printConfusionMatrix(outputs::AbstractArray{<:Real,2}, targets::AbstractArray{Bool,2}; weighted::Bool=true) =  printConfusionMatrix(classifyOutputs(outputs), targets; weighted=weighted)
+
+
+
+printConfusionMatrix(outputs::AbstractArray{Bool,1},   targets::AbstractArray{Bool,1})                      = printConfusionMatrix(reshape(outputs, :, 1), targets);
+printConfusionMatrix(outputs::AbstractArray{<:Real,1}, targets::AbstractArray{Bool,1}; threshold::Real=0.5) = printConfusionMatrix(outputs.>=threshold,    targets);
