@@ -4,7 +4,9 @@ using DelimitedFiles
 
 include("leaf.jl");
 include("functions.jl");
-#include("knn.jl");
+include("knn.jl");
+include("SVM.jl");
+
 
 #Fijar la semilla aleatoria para garantizar la repetibilidad de los resultados.
 Random.seed!(1);
@@ -66,12 +68,12 @@ modelHyperparameters["kernelDegree"] = kernelDegree;
 modelHyperparameters["kernelGamma"] = kernelGamma;
 modelHyperparameters["C"] = C;
 
-modelCrossValidation(:SVM, modelHyperparameters, entrada, salida, crossValidationIndices);
-#modelCrossValidation(svm(), modelHyperparameters, inputs, targets, crossValidationIndices);
+#modelCrossValidation(:SVM, modelHyperparameters, entrada, salida, crossValidationIndices);
+modelCrossValidation2(SVM, modelHyperparameters, inputs, targets, crossValidationIndices);
 
 # Entrenamos los arboles de decision
-modelCrossValidation(:DecisionTree, Dict("maxDepth" => maxDepth), inputs, targets, crossValidationIndices);
+#modelCrossValidation2(:DecisionTree, Dict("maxDepth" => maxDepth), inputs, targets, crossValidationIndices);
 
 # Entrenamos los kNN
-modelCrossValidation(:kNN, Dict("numNeighbors" => numNeighbors), inputs, targets, crossValidationIndices);
+modelCrossValidation2(knn, Dict("numNeighbors" => numNeighbors), inputs, targets, crossValidationIndices);
 #modelCrossValidation(knn(), Dict("numNeighbors" => numNeighbors), inputs, targets, crossValidationIndices);

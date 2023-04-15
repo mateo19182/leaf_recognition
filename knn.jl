@@ -32,4 +32,4 @@ end
 
 
 #println("Precisión en conjunto de test: ", knn(k))
-png(plot(x, label = "",xlims=(0,7), ylims=(85,100), title = "KNN", xlabel = "K Vecinos", ylabel = "Precisión en el Test (%)", ),"KNN");
+#png(plot(x, label = "",xlims=(0,7), ylims=(85,100), title = "KNN", xlabel = "K Vecinos", ylabel = "Precisión en el Test (%)", ),"KNN");
