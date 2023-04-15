@@ -8,6 +8,26 @@ include("functions.jl");
 
 @sk_import svm: SVC 
 
+function SVM(modelHyperparameters::Dict, inputs::AbstractArray{<:Real,2}, targets::AbstractArray{<:Any,1}, crossValidationIndices::Array{Int64,1},numFold::Int)
+    
+    # Dividimos los datos en entrenamiento y test
+    trainingInputs    = inputs[crossValidationIndices.!=numFold,:];
+    testInputs        = inputs[crossValidationIndices.==numFold,:];
+    trainingTargets   = targets[crossValidationIndices.!=numFold];
+    testTargets       = targets[crossValidationIndices.==numFold];
+    
+    svc = SVC(kernel=modelHyperparameters["kernel"], degree=modelHyperparameters["kernelDegree"], gamma=modelHyperparameters["kernelGamma"], C=modelHyperparameters["C"]);
+    # Entrenamos el modelo con el conjunto de entrenamiento
+    model = fit!(svc, trainingInputs, trainingTargets);
+
+    # Pasamos el conjunto de test
+    testOutputs = predict(model, testInputs);
+
+    # Calculamos las metricas correspondientes con la funcion desarrollada en la practica anterior
+    (acc, _, _, _, _, _, F1, _) = confusionMatrix(testOutputs, testTargets);
+    return acc, F1;
+end
+
 function SVM(entrada, salida)
     precisionesEntrenamiento = Array{Float64,1}();
     precisionesTest = Array{Float64,1}();

@@ -22,7 +22,17 @@ function holdOut(numPatrones::Int, porcentajeTest::Float64)
 end
 
 
-function modelCrossValidation(modelType::Symbol, modelHyperparameters::Dict, inputs::AbstractArray{<:Real,2}, targets::AbstractArray{<:Any,1}, crossValidationIndices::Array{Int64,1})
+function loadData(index : Int64)
+    dataset = readdlm("samples.data",',');
+    inputs = convert(Array{Float32,2}, dataset[:,1:index]);
+    inputs = convert(Array{Float32}, inputs);
+    targets = dataset[:,end]
+    targets = convert(Array{String}, targets);
+    return inputs, targets; 
+end
+
+
+function modelCrossValidation(fun , modelHyperparameters::Dict, inputs::AbstractArray{<:Real,2}, targets::AbstractArray{<:Any,1}, crossValidationIndices::Array{Int64,1})
     # Comprobamos que el numero de patrones coincide
     @assert(size(inputs,1)==length(targets));
 
