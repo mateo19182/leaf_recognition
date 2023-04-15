@@ -14,12 +14,12 @@ Random.seed!(1);
 #Cargar los datos y extraer las características de esa aproximación.
 
 #loadData();
-bd = readdlm("samples.data",',');
-entrada = bd[:,1:5];
-entrada = convert(Array{Float64}, entrada);
-normalmaxmin(entrada);
-salida = bd[:,end];
-salida = convert(Array{String}, salida);
+#bd = readdlm("samples.data",',');
+#entrada = bd[:,1:5];
+#entrada = convert(Array{Float64}, entrada);
+#normalmaxmin(entrada);
+#salida = bd[:,end];
+#salida = convert(Array{String}, salida);
 numPatrones = size(entrada, 1);
 
 inputs , targets = loadData(5);
@@ -69,11 +69,11 @@ modelHyperparameters["kernelGamma"] = kernelGamma;
 modelHyperparameters["C"] = C;
 
 #modelCrossValidation(:SVM, modelHyperparameters, entrada, salida, crossValidationIndices);
-modelCrossValidation2(SVM, modelHyperparameters, inputs, targets, crossValidationIndices);
+modelCrossValidation(SVM, modelHyperparameters, inputs, targets, crossValidationIndices);
 
 # Entrenamos los arboles de decision
 #modelCrossValidation2(:DecisionTree, Dict("maxDepth" => maxDepth), inputs, targets, crossValidationIndices);
 
 # Entrenamos los kNN
-modelCrossValidation2(knn, Dict("numNeighbors" => numNeighbors), inputs, targets, crossValidationIndices);
+modelCrossValidation(knn, Dict("numNeighbors" => numNeighbors), inputs, targets, crossValidationIndices);
 #modelCrossValidation(knn(), Dict("numNeighbors" => numNeighbors), inputs, targets, crossValidationIndices);
