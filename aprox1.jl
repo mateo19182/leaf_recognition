@@ -6,6 +6,7 @@ include("leaf.jl");
 include("functions.jl");
 include("knn.jl");
 include("SVM.jl");
+include("DecisionT.jl");
 
 
 #Fijar la semilla aleatoria para garantizar la repetibilidad de los resultados.
@@ -20,9 +21,10 @@ Random.seed!(1);
 #normalmaxmin(entrada);
 #salida = bd[:,end];
 #salida = convert(Array{String}, salida);
-numPatrones = size(entrada, 1);
+
 
 inputs , targets = loadData(5);
+numPatrones = size(inputs, 1);
 println("Tamaño de la matriz de entradas: ", size(inputs,1), "x", size(inputs,2), " de tipo ", typeof(inputs));
 println("Longitud del vector de salidas deseadas antes de codificar: ", length(targets), " de tipo ", typeof(targets));
 
@@ -72,7 +74,7 @@ modelHyperparameters["C"] = C;
 modelCrossValidation(SVM, modelHyperparameters, inputs, targets, crossValidationIndices);
 
 # Entrenamos los arboles de decision
-#modelCrossValidation2(:DecisionTree, Dict("maxDepth" => maxDepth), inputs, targets, crossValidationIndices);
+modelCrossValidation(DecisionTree, Dict("maxDepth" => maxDepth), inputs, targets, crossValidationIndices);
 
 # Entrenamos los kNN
 modelCrossValidation(knn, Dict("numNeighbors" => numNeighbors), inputs, targets, crossValidationIndices);

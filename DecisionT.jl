@@ -166,3 +166,29 @@ for maxDepth in maxDepths
 end;
 
 
+
+# GONZALO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+#REVISA TODO LO QUE HAS HECHO PREVIAMENTE POR SI SE NECESITA ALGO PARA EL USO DE
+# ESTE ALGORITMO, PERO HEMOS IMPLEMENTADO TODO CON ESTAS FUNCIONES PARA QUE 
+# SEA LO MAS COMODO POSIBLE, EN PRINCIPIO HAY QUE BORRAR EL RESTO DE CLASE MENOS 
+# ESTA FUNCIÓN, YA QUE ES CODIGO REPETIDO Y TIENE QUE IR TODO CON LOS MISMOS CONJUNTOS DE DATOS.
+function DecisionTree(modelHyperparameters::Dict, inputs::AbstractArray{<:Real,2}, targets::AbstractArray{<:Any,1}, crossValidationIndices::Array{Int64,1},numFold::Int)
+    # Dividimos los datos en entrenamiento y test
+    trainingInputs    = inputs[crossValidationIndices.!=numFold,:];
+    testInputs        = inputs[crossValidationIndices.==numFold,:];
+    trainingTargets   = targets[crossValidationIndices.!=numFold];
+    testTargets       = targets[crossValidationIndices.==numFold];
+
+    model = DecisionTreeClassifier(max_depth=modelHyperparameters["maxDepth"], random_state=1);
+
+    # Entrenamos el modelo con el conjunto de entrenamiento
+    model = fit!(model, trainingInputs, trainingTargets);
+
+    # Pasamos el conjunto de test
+    testOutputs = predict(model, testInputs);
+
+    # Calculamos las metricas correspondientes con la funcion desarrollada en la practica anterior
+    (acc, _, _, _, _, _, F1, _) = confusionMatrix(testOutputs, testTargets);
+    return acc,F1;
+end
+
