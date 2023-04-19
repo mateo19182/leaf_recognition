@@ -12,7 +12,7 @@ using LinearAlgebra
 @sk_import tree: DecisionTreeClassifier
 @sk_import neighbors: KNeighborsClassifier
 
-  
+  #=
 
 function confusionMatrix(yTrue::Vector{T}, yPred::Vector{T}) where T<:Integer
     
@@ -166,7 +166,7 @@ for maxDepth in maxDepths
 end;
 
 
-
+=#
 # GONZALO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
 #REVISA TODO LO QUE HAS HECHO PREVIAMENTE POR SI SE NECESITA ALGO PARA EL USO DE
 # ESTE ALGORITMO, PERO HEMOS IMPLEMENTADO TODO CON ESTAS FUNCIONES PARA QUE 

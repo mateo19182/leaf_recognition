@@ -2,28 +2,18 @@ using Random
 using ScikitLearn
 using DelimitedFiles 
 
-include("leaf.jl");
-include("functions.jl");
-include("knn.jl");
-include("SVM.jl");
-include("DecisionT.jl");
+include("../aux/leaf.jl");
+include("../aux/functions.jl");
+include("../algoritmos/knn.jl");
+include("../algoritmos/SVM.jl");
+include("../algoritmos/DecisionT.jl");
 
 
 #Fijar la semilla aleatoria para garantizar la repetibilidad de los resultados.
 Random.seed!(1);
 
 #Cargar los datos y extraer las características de esa aproximación.
-
-#loadData();
-#bd = readdlm("samples.data",',');
-#entrada = bd[:,1:5];
-#entrada = convert(Array{Float64}, entrada);
-#normalmaxmin(entrada);
-#salida = bd[:,end];
-#salida = convert(Array{String}, salida);
-
-
-inputs , targets = loadData(5);
+inputs , targets = loadDataSet("../data/samples1.data",4);
 numPatrones = size(inputs, 1);
 println("Tamaño de la matriz de entradas: ", size(inputs,1), "x", size(inputs,2), " de tipo ", typeof(inputs));
 println("Longitud del vector de salidas deseadas antes de codificar: ", length(targets), " de tipo ", typeof(targets));

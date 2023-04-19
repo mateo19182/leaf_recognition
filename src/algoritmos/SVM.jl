@@ -4,7 +4,7 @@ using Statistics
 using Plots
 using EvalMetrics
 
-include("functions.jl");
+include("../aux/functions.jl");
 
 @sk_import svm: SVC 
 

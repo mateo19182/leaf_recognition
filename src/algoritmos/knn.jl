@@ -2,7 +2,7 @@ using ScikitLearn
 using DelimitedFiles
 using Statistics
 using Plots
-include("functions.jl");
+include("../aux/functions.jl");
 
 # Importar módulo neighbors de ScikitLearn
 @sk_import neighbors: KNeighborsClassifier
