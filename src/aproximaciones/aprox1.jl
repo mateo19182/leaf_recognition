@@ -13,7 +13,7 @@ include("../algoritmos/DecisionT.jl");
 Random.seed!(1);
 
 #Cargar los datos y extraer las características de esa aproximación.
-inputs , targets = loadDataSet("../data/samples1.data",4);
+inputs , targets = loadDataSet("samples1.data",4);
 numPatrones = size(inputs, 1);
 println("Tamaño de la matriz de entradas: ", size(inputs,1), "x", size(inputs,2), " de tipo ", typeof(inputs));
 println("Longitud del vector de salidas deseadas antes de codificar: ", length(targets), " de tipo ", typeof(targets));
