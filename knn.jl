@@ -27,7 +27,24 @@ function knn(modelHyperparameters::Dict, inputs::AbstractArray{<:Real,2}, target
     
     # Calculamos las metricas correspondientes con la funcion desarrollada en la practica anterior
     (acc, _, _, _, _, _, F1, _) = confusionMatrix(testOutputs, testTargets);
-    printConfusionMatrix(testOutputs, testTargets; weighted=true);
+    #printConfusionMatrix(testOutputs, testTargets; weighted=true);
+
+    return acc, F1;
+end
+
+function knn(modelHyperparameters::Dict, inputs::AbstractArray{<:Real,2}, targets::AbstractArray{<:Any,1})
+
+    knn = KNeighborsClassifier(modelHyperparameters["numNeighbors"])
+
+    # Entrenamos el modelo con el todo el dataset
+    model = fit!(knn, inputs, targets);
+
+    # Pasamos el conjunto de test
+    testOutputs = predict(model, inputs);
+    
+    # Calculamos las metricas correspondientes con la funcion desarrollada en la practica anterior
+    (acc, _, _, _, _, _, F1, _) = confusionMatrix(testOutputs, targets);
+    printConfusionMatrix(testOutputs, targets; weighted=true);
 
     return acc, F1;
 end

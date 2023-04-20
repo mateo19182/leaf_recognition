@@ -20,7 +20,7 @@ function loadData()
 end;
 
 
-function sym(imagenObjetos)
+function sym(imagenObjetos, formaimg)
     img_size = size(imagenObjetos);
     img_croppedx1= @view imagenObjetos[ : , floor(Int, 1/2*img_size[2]) : floor(Int, img_size[2])  ]
     img_croppedx2= @view imagenObjetos[ : , floor(Int, 1) : floor(Int, 1/2*img_size[2]) ]
@@ -32,7 +32,10 @@ function sym(imagenObjetos)
     img_flipy1 = reverse(img_croppedy1, dims=1)
     sym_y=assess_ssim(img_croppedy2r, img_flipy1);
     sym_x=assess_ssim(img_croppedx2r, img_flipx1);
-    return (sym_x, sym_y)
+    if (formaimg>1)
+        return (sym_x, sym_y)
+    else 
+        return (sym_y, sym_x)
 end
 
 function writeData(imgArray, type::String, dataTxt)
@@ -80,7 +83,7 @@ function writeData(imgArray, type::String, dataTxt)
         porcentaje_borde = n_pixels_border/n_white_pixels;
         
         #simetria eje X, eje Y
-        (sym_x, sym_y) = sym(gray_img);
+        (sym_x, sym_y) = sym(gray_img, formaimg);
 
         #centro de masa
             #TODO

@@ -38,9 +38,11 @@ numRepetitionsANNTraining = 50; # Numero de veces que se va a entrenar la RNA pa
 
 # Parametros del SVM
 kernel = "rbf";
+kernels = ["rbf", "linear", "poly", "sigmoid"];
+
 kernelDegree = 3;
-kernelGamma = 2;
-C=1;
+kernelGamma = "auto";
+C=10;
 
 # Parametros del arbol de decision
 maxDepth = 4;
@@ -51,31 +53,49 @@ numNeighbors = 3;
 # Creamos los indices de validacion cruzada
 crossValidationIndices = crossvalidation(numPatrones, numFolds);
 
-# Entrenamos las RR.NN.AA.
 modelHyperparameters = Dict();
-modelHyperparameters["topology"] = topology;
-modelHyperparameters["learningRate"] = learningRate;
-modelHyperparameters["validationRatio"] = validationRatio;
-modelHyperparameters["numExecutions"] = numRepetitionsANNTraining;
-modelHyperparameters["maxEpochs"] = numMaxEpochs;
-modelHyperparameters["maxEpochsVal"] = maxEpochsVal;
-#modelCrossValidation(:ANN, modelHyperparameters, inputs, targets, crossValidationIndices);
-
-# Entrenamos las SVM
-modelHyperparameters = Dict();
-modelHyperparameters["kernel"] = kernel;
 modelHyperparameters["kernelDegree"] = kernelDegree;
 modelHyperparameters["kernelGamma"] = kernelGamma;
-modelHyperparameters["C"] = C;
 
-#modelCrossValidation(:SVM, modelHyperparameters, entrada, salida, crossValidationIndices);
-(meanTestAccuracies, stdTestAccuracies, meanTestF1, stdTestF1) = modelCrossValidation2(SVM, modelHyperparameters, inputs, targets, crossValidationIndices);
-println("meanTestAccuracies= ", meanTestAccuracies);
+# Entrenamos las SVM
 
-# Entrenamos los arboles de decision
-#modelCrossValidation2(:DecisionTree, Dict("maxDepth" => maxDepth), inputs, targets, crossValidationIndices);
+precisiones = Array{Float64,1}();
+desviacionTipica = Array{Float64,1}();
+precisionesF1 = Array{Float64,1}();
+desviacionTipicaF1 = Array{Float64,1}();
 
-# Entrenamos los kNN
-#modelCrossValidation2(knn, Dict("numNeighbors" => numNeighbors), inputs, targets, crossValidationIndices);
-#modelCrossValidation(knn(), Dict("numNeighbors" => numNeighbors), inputs, targets, crossValidationIndices);
+for i in kernels
+    println(i);
+    modelHyperparameters["kernel"] = i;
+
+    for j in 1:7
+        println(" C: ", j*10)  #valor que cambia
+        modelHyperparameters["C"] = C*j;
+
+        #modelCrossValidation(:SVM, modelHyperparameters, entrada, salida, crossValidationIndices);
+        (meanTestAccuracies, stdTestAccuracies, meanTestF1, stdTestF1) = modelCrossValidation2(SVM, modelHyperparameters, inputs, targets, crossValidationIndices);
+
+        #push!(precisiones, meanTestAccuracies);
+        #push!(desviacionTipica, stdTestAccuracies);
+        #push!(precisionesF1, meanTestF1);
+        #push!(desviacionTipicaF1, stdTestF1);
+        
+        println("Accuracy: ", meanTestAccuracies);
+        println("desviacionTipica: ", stdTestAccuracies);
+        println("AccuracyF1: ", meanTestF1);
+        println("desviacionTipicaF1: ", stdTestF1);
+    end
+
+    #=best=findmax(precisionesF1);
+    println("C:")
+    print(best)
+    println(precisiones[best[2]]);
+    println(desviacionTipica[best[2]]);
+    println(precisionesF1[best[2]]);
+    println(desviacionTipicaF1[best[2]]);=#
+end
+
+
+SVM(modelHyperparameters, entrada, salida);
+
 
