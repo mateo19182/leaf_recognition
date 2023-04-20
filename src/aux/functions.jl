@@ -5,7 +5,7 @@ using Statistics
 
 
 #solo hace falta normalizar el 3er atributo
-function normalmaxmin(patrones::Array{Float64,2})
+function normalmaxmin(patrones::Array{Float32,2})
     minimo = minimum(patrones[:,3], dims=1);
     maximo = maximum(patrones[:,3], dims=1);
     patrones[:,3] .-= minimo;
@@ -21,18 +21,24 @@ function holdOut(numPatrones::Int, porcentajeTest::Float64)
 end
 
 
-function loadData(index)
-    dataset = readdlm("samples.data",',');
+function loadDataSet(ruta::String,index::Int64)
+    # Obtener la ruta absoluta a la carpeta src
+    src_dir = dirname(@__FILE__)
+
+    # Construir la ruta relativa al archivo samples.data
+    data_path = joinpath(src_dir, "..", "data", ruta)
+
+    dataset = readdlm(data_path,',');
     inputs = convert(Array{Float32,2}, dataset[:,1:index]);
     inputs = convert(Array{Float32}, inputs);
-    normalmaxmin(entrada);
+    normalmaxmin(inputs);
     targets = dataset[:,end]
     targets = convert(Array{String}, targets);
     return inputs, targets; 
 end
 
 
-function modelCrossValidation2(fun::Function , modelHyperparameters::Dict, inputs::AbstractArray{<:Real,2}, targets::AbstractArray{<:Any,1}, crossValidationIndices::Array{Int64,1})
+function modelCrossValidation(fun::Function , modelHyperparameters::Dict, inputs::AbstractArray{<:Real,2}, targets::AbstractArray{<:Any,1}, crossValidationIndices::Array{Int64,1})
         # Comprobamos que el numero de patrones coincide
         @assert(size(inputs,1)==length(targets));
 

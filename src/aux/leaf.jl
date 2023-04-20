@@ -10,7 +10,7 @@ function loadData()
     eucImg = (load.("datasets/Eucalyptus/".*readdir("Eucalyptus")));
     corImg = (load.("datasets/Cornus/".*readdir("Cornus")));
 
-    dataTxt = open("samples.data","w");
+    dataTxt = open("../data/samples2.data","w");
 
     writeData(alnusImg, "Alnus", dataTxt);
     writeData(eucImg, "Eucalyptus", dataTxt);

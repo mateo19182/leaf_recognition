@@ -3,7 +3,7 @@ using DelimitedFiles
 using Statistics
 using Plots
 
-include("functions.jl");
+include("../aux/functions.jl");
 
 @sk_import svm: SVC 
 
