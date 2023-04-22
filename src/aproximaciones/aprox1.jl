@@ -2,10 +2,10 @@ using Random
 using ScikitLearn
 using DelimitedFiles 
 
-include("leaf.jl");
-include("functions.jl");
-include("knn.jl");
-include("SVM.jl");
+include("../aux/leaf.jl");
+include("../aux/functions.jl");
+include("../algoritmos/knn.jl");
+include("../algoritmos/SVM.jl");
 
 
 #Fijar la semilla aleatoria para garantizar la repetibilidad de los resultados.
@@ -14,17 +14,16 @@ Random.seed!(1);
 #Cargar los datos y extraer las características de esa aproximación.
 
 #loadData();
-bd = readdlm("samples.data",',');
-entrada = bd[:,1:5];
-entrada = convert(Array{Float64}, entrada);
+bd = readdlm("src/data/samples1.data",',');
+entrada = bd[:,1:3];
+entrada = convert(Array{Float32}, entrada);
 normalmaxmin(entrada);
 salida = bd[:,end];
 salida = convert(Array{String}, salida);
 numPatrones = size(entrada, 1);
 
-inputs , targets = loadData(5);
-println("Tamaño de la matriz de entradas: ", size(inputs,1), "x", size(inputs,2), " de tipo ", typeof(inputs));
-println("Longitud del vector de salidas deseadas antes de codificar: ", length(targets), " de tipo ", typeof(targets));
+println("Tamaño de la matriz de entradas: ", size(entrada,1), "x", size(entrada,2), " de tipo ", typeof(entrada));
+println("Longitud del vector de salidas deseadas antes de codificar: ", length(salida), " de tipo ", typeof(salida));
 
 numFolds = 10;
 
@@ -38,6 +37,7 @@ numRepetitionsANNTraining = 50; # Numero de veces que se va a entrenar la RNA pa
 
 # Parametros del SVM
 kernel = "rbf";
+kernels = ["rbf", "linear", "poly", "sigmoid"];
 kernelDegree = 3;
 kernelGamma = 2;
 C=1;
@@ -63,17 +63,68 @@ modelHyperparameters["maxEpochsVal"] = maxEpochsVal;
 
 # Entrenamos las SVM
 modelHyperparameters = Dict();
-modelHyperparameters["kernel"] = kernel;
+modelHyperparameters["kernel"] = kernels;
 modelHyperparameters["kernelDegree"] = kernelDegree;
 modelHyperparameters["kernelGamma"] = kernelGamma;
 modelHyperparameters["C"] = C;
 
-#modelCrossValidation(:SVM, modelHyperparameters, entrada, salida, crossValidationIndices);
-modelCrossValidation2(SVM, modelHyperparameters, inputs, targets, crossValidationIndices);
+#modelCrossValidation(SVM, modelHyperparameters, entrada, salida, crossValidationIndices);
 
 # Entrenamos los arboles de decision
 #modelCrossValidation2(:DecisionTree, Dict("maxDepth" => maxDepth), inputs, targets, crossValidationIndices);
 
 # Entrenamos los kNN
-modelCrossValidation2(knn, Dict("numNeighbors" => numNeighbors), inputs, targets, crossValidationIndices);
-#modelCrossValidation(knn(), Dict("numNeighbors" => numNeighbors), inputs, targets, crossValidationIndices);
+#modelCrossValidation(knn, Dict("numNeighbors" => numNeighbors), entrada, salida, crossValidationIndices);
+
+
+
+for i in kernels
+    println(i);
+    modelHyperparameters["kernel"] = i;
+    for j in 1:10
+        println(" C: ", j*10)  #valor que cambia
+        modelHyperparameters["C"] = C*j;
+
+        #modelCrossValidation(:SVM, modelHyperparameters, entrada, salida, crossValidationIndices);
+        (meanTestAccuracies, stdTestAccuracies, meanTestF1, stdTestF1) = modelCrossValidation(SVM, modelHyperparameters, entrada, salida, crossValidationIndices);
+
+        #push!(precisiones, meanTestAccuracies);
+        #push!(desviacionTipica, stdTestAccuracies);
+        #push!(precisionesF1, meanTestF1);
+        #push!(desviacionTipicaF1, stdTestF1);
+        
+        println("Accuracy: ", meanTestAccuracies);
+        println("desviacionTipica: ", stdTestAccuracies);
+        println("AccuracyF1: ", meanTestF1);
+        println("desviacionTipicaF1: ", stdTestF1);
+    end
+
+    #=best=findmax(precisionesF1);
+    println("C:")
+    print(best)
+    println(precisiones[best[2]]);
+    println(desviacionTipica[best[2]]);
+    println(precisionesF1[best[2]]);
+    println(desviacionTipicaF1[best[2]]);=#
+end
+
+modelHyperparameters["kernel"] = "rbf";
+modelHyperparameters["C"] = 30;
+println("best paremeters: kernel=rfb, C=30");
+SVM(modelHyperparameters, entrada, salida);
+
+
+for j in 1:10
+    println(" numNeighbors: ", j)  #valor que cambia
+    numNeighbors = j;
+
+    (meanTestAccuracies, stdTestAccuracies, meanTestF1, stdTestF1) = modelCrossValidation(knn, Dict("numNeighbors" => numNeighbors), entrada, salida, crossValidationIndices);
+    
+    println("Accuracy: ", meanTestAccuracies);
+    println("desviacionTipica: ", stdTestAccuracies);
+    println("AccuracyF1: ", meanTestF1);
+    println("desviacionTipicaF1: ", stdTestF1);
+end
+numNeighbors = 2;
+println("best paremeters:  numNeighbors=1");
+knn( Dict("numNeighbors" => numNeighbors), entrada, salida);

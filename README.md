@@ -11,21 +11,15 @@ number of leaf pixels / number of bounding box pixels ,
 center of mass compare with total bounding box,
 number of silhouette leaf pixels / number of bounding box pixels
 ***
-### TODO 1ST APPROACH:
-- [ ] Center of mass (M)
-- [ ] Rna - WIP(P)
-- [ ] auxiliar functinos - WIP(P)
-- [ ] SVM - WIP (M)
-- [ ] KNN - Wip (I)
-- [ ] DECISSION TREES - WIP (G)
-
+### TODO 
 - [ ] FINISH MEMORY
-- [ ] arreglar introduccion y descripcion del problema
+- [ ] aumentar introduccion y descripcion del problema
 - [ ] completar bibliografia e imagenes
+- [ ] arreglar leaf.jl
 - [ ] Poner matrices de confusión y aumentar el número de configuraciones de cada algoritmo
 ***
 ### Future:
 1. change files names, better meaningful 
-2. featute: pixels intensity (?) (2ND APPROach)
-3. More classes (NEW APPROACH)
-4. Symmetry X/Y
+2. feature: Center of mass (M)
+3. More classes 
+

@@ -10,7 +10,7 @@ function loadData()
     eucImg = (load.("datasets/Eucalyptus/".*readdir("Eucalyptus")));
     corImg = (load.("datasets/Cornus/".*readdir("Cornus")));
 
-    dataTxt = open("../data/samples2.data","w");
+    dataTxt = open("samples.data","w");
 
     writeData(alnusImg, "Alnus", dataTxt);
     writeData(eucImg, "Eucalyptus", dataTxt);
@@ -36,6 +36,7 @@ function sym(imagenObjetos, formaimg)
         return (sym_x, sym_y)
     else 
         return (sym_y, sym_x)
+    end
 end
 
 function writeData(imgArray, type::String, dataTxt)
@@ -89,7 +90,6 @@ function writeData(imgArray, type::String, dataTxt)
             #TODO
 
         write(dataTxt, (string(porcentaje_blancos)*","*string(porcentaje_borde)*","*string(formaimg)*","*string(sym_x)*","*string(sym_y)*","*type*"\n"));
-
 
 
         # Imprime los resultados
