@@ -71,7 +71,7 @@ modelHyperparameters["C"] = C;
 #modelCrossValidation(SVM, modelHyperparameters, entrada, salida, crossValidationIndices);
 
 # Entrenamos los arboles de decision
-modelCrossValidation(DecisionTree, Dict("maxDepth" => maxDepth), inputs, targets, crossValidationIndices);
+#modelCrossValidation(DecisionTree, Dict("maxDepth" => maxDepth), inputs, targets, crossValidationIndices);
 
 # Entrenamos los kNN
 #modelCrossValidation(knn, Dict("numNeighbors" => numNeighbors), entrada, salida, crossValidationIndices);
