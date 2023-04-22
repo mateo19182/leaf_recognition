@@ -43,7 +43,7 @@ kernelGamma = 2;
 C=1;
 
 # Parametros del arbol de decision
-maxDepth = 4;
+maxDepths = [2;3;4;5;7;9];
 
 # Parapetros de kNN
 numNeighbors = 3;
@@ -71,8 +71,10 @@ modelHyperparameters["C"] = C;
 #modelCrossValidation(SVM, modelHyperparameters, entrada, salida, crossValidationIndices);
 
 # Entrenamos los arboles de decision
-#modelCrossValidation2(:DecisionTree, Dict("maxDepth" => maxDepth), inputs, targets, crossValidationIndices);
-
+for maxDepth in maxDepths
+    println("Profundidad: $maxDepth");
+    modelCrossValidation(DecisionTree, Dict("maxDepth" => maxDepth), inputs, targets, crossValidationIndices);
+end;
 # Entrenamos los kNN
 #modelCrossValidation(knn, Dict("numNeighbors" => numNeighbors), entrada, salida, crossValidationIndices);
 
