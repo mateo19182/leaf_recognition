@@ -6,6 +6,7 @@ include("../aux/leaf.jl");
 include("../aux/functions.jl");
 include("../algoritmos/knn.jl");
 include("../algoritmos/SVM.jl");
+include("../algoritmos/DecisionT.jl");
 
 
 #Fijar la semilla aleatoria para garantizar la repetibilidad de los resultados.
@@ -14,7 +15,8 @@ Random.seed!(1);
 #Cargar los datos y extraer las características de esa aproximación.
 
 #loadData();
-bd = readdlm("src/data/samples3.data",',');
+ruta_absoluta = abspath("../data/samples3.data")
+bd = readdlm(ruta_absoluta, ',')
 entrada = bd[:,1:5];
 entrada = convert(Array{Float32}, entrada);
 normalmaxmin(entrada);
@@ -73,7 +75,11 @@ modelHyperparameters["C"] = C;
 # Entrenamos los arboles de decision
 for maxDepth in maxDepths
     println("Profundidad: $maxDepth");
-    modelCrossValidation(DecisionTree, Dict("maxDepth" => maxDepth), inputs, targets, crossValidationIndices);
+    (meanTestAccuracies, stdTestAccuracies, meanTestF1, stdTestF1) = modelCrossValidation(DecisionTree, Dict("maxDepth" => maxDepth), entrada, salida, crossValidationIndices);
+    println("Accuracy: ", meanTestAccuracies);
+    println("desviacionTipica: ", stdTestAccuracies);
+    println("AccuracyF1: ", meanTestF1);
+    println("desviacionTipicaF1: ", stdTestF1);
 end;
 # Entrenamos los kNN
 #modelCrossValidation(knn, Dict("numNeighbors" => numNeighbors), entrada, salida, crossValidationIndices);
