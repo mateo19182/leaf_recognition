@@ -65,9 +65,33 @@ function writeData(imgArray, type::String, dataTxt)
         imagenObjetos[ x1:x2 , y2 ] .= RGB(0,1,0);
         imagenObjetos[ x1 , y1:y2 ] .= RGB(0,1,0);
         imagenObjetos[ x2 , y1:y2 ] .= RGB(0,1,0);
+
+        centroides = ImageMorphology.component_centroids(labelArray)[2:end];
+        xc = Int(round(centroide[1]));
+        yc = Int(round(centroide[2]));
+        imagenObjetos[ xc, yc ] = RGB(1,0,0);
+
+
+        #centro de masa, es igual
+        x_center_norm = xc/(x2-x1);
+        y_center_norm = yc/(y2-y1);
+
+        println("Centroide: ($x_center_norm, $y_center_norm)")
+
+
         formaimg=(y2-y1)/(x2-x1);
         total_pixels_bb=(y2-y1)*(x2-x1)
+        img_mat = convert(Matrix{Bool}, channelview(imagen)[1])
 
+        # Calculate center of mass
+        m, n = size(img_mat)
+        x_c = sum([i*img_mat[i,j] for i in 1:m, j in 1:n]) / sum(img_mat)
+        y_c = sum([j*img_mat[i,j] for i in 1:m, j in 1:n]) / sum(img_mat)
+
+        # Print results
+        println("Center of mass: ($x_c, $y_c)")
+
+        
         #display(imagenObjetos);
         #save("imagenProcesada.jpg", imagenObjetos)
         gray_img = Gray.(imagenObjetos);
@@ -86,10 +110,7 @@ function writeData(imgArray, type::String, dataTxt)
         #simetria eje X, eje Y
         (sym_x, sym_y) = sym(gray_img, formaimg);
 
-        #centro de masa
-            #TODO
-
-        write(dataTxt, (string(porcentaje_blancos)*","*string(porcentaje_borde)*","*string(formaimg)*","*string(sym_x)*","*string(sym_y)*","*type*"\n"));
+        write(dataTxt, (string(porcentaje_blancos)*","*string(porcentaje_borde)*","*string(formaimg)*","*string(x_center_norm)*","*string(y_center_norm)*","*string(sym_x)*","*string(sym_y)*","*type*"\n"));
 
 
         # Imprime los resultados
@@ -112,3 +133,5 @@ function border(img)
     #isplay(img_copy)
     return count(corners)
 end
+
+loadData();
