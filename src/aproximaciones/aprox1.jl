@@ -67,15 +67,7 @@ modelHyperparameters["kernel"] = kernels;
 modelHyperparameters["kernelDegree"] = kernelDegree;
 modelHyperparameters["kernelGamma"] = kernelGamma;
 modelHyperparameters["C"] = C;
-
-#modelCrossValidation(SVM, modelHyperparameters, entrada, salida, crossValidationIndices);
-
-# Entrenamos los arboles de decision
-#modelCrossValidation(DecisionTree, Dict("maxDepth" => maxDepth), inputs, targets, crossValidationIndices);
-
-# Entrenamos los kNN
-#modelCrossValidation(knn, Dict("numNeighbors" => numNeighbors), entrada, salida, crossValidationIndices);
-
+results_svm = Array{Array{Float64,1},1}()
 
 
 for i in kernels
@@ -97,21 +89,16 @@ for i in kernels
         println("desviacionTipica: ", stdTestAccuracies);
         println("AccuracyF1: ", meanTestF1);
         println("desviacionTipicaF1: ", stdTestF1);
+        
     end
 
-    #=best=findmax(precisionesF1);
-    println("C:")
-    print(best)
-    println(precisiones[best[2]]);
-    println(desviacionTipica[best[2]]);
-    println(precisionesF1[best[2]]);
-    println(desviacionTipicaF1[best[2]]);=#
 end
 
 modelHyperparameters["kernel"] = "rbf";
 modelHyperparameters["C"] = 30;
 println("best paremeters: kernel=rfb, C=30");
 SVM(modelHyperparameters, entrada, salida);
+results = Array{Array{Float64,1},1}()
 
 
 for j in 1:10
@@ -124,7 +111,15 @@ for j in 1:10
     println("desviacionTipica: ", stdTestAccuracies);
     println("AccuracyF1: ", meanTestF1);
     println("desviacionTipicaF1: ", stdTestF1);
+    nuevo =[ numNeighbors,round(meanTestAccuracies, digits=3),round(stdTestAccuracies, digits=3),round(meanTestF1, digits=3),round(stdTestF1, digits=3)]
+    push!(results, nuevo)
 end
-numNeighbors = 2;
-println("best paremeters:  numNeighbors=1");
+for i in results
+    (numNeighbors, meanTestAccuracies, stdTestAccuracies, meanTestF1, stdTestF1) = i 
+    println("$numNeighbors & $meanTestAccuracies & $stdTestAccuracies & $meanTestF1 & $stdTestF1")
+end
+
+sorted_results = sort(results, by=x->x[4], rev=true)
+numNeighbors = convert(Int, sorted_results[1][1]);
+println("best paremeters:  numNeighbors= $numNeighbors");
 knn( Dict("numNeighbors" => numNeighbors), entrada, salida);

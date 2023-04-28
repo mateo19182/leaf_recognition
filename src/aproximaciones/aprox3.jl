@@ -15,8 +15,8 @@ Random.seed!(1);
 #Cargar los datos y extraer las características de esa aproximación.
 
 #loadData();
-ruta_absoluta = abspath("../data/samples3.data")
-bd = readdlm(ruta_absoluta, ',')
+#ruta_absoluta = abspath("../data/samples3.data")
+bd = readdlm("src/data/samples3.data",',');
 entrada = bd[:,1:5];
 entrada = convert(Array{Float32}, entrada);
 normalmaxmin(entrada);
@@ -120,6 +120,7 @@ modelHyperparameters["kernel"] = "rbf";
 modelHyperparameters["C"] = 30;
 println("best paremeters: kernel=rfb, C=30");
 SVM(modelHyperparameters, entrada, salida);
+results = Array{Array{Float64,1},1}()
 
 for j in 1:10
     println(" numNeighbors: ", j)  #valor que cambia
@@ -131,7 +132,16 @@ for j in 1:10
     println("desviacionTipica: ", stdTestAccuracies);
     println("AccuracyF1: ", meanTestF1);
     println("desviacionTipicaF1: ", stdTestF1);
+    nuevo =[ numNeighbors,round(meanTestAccuracies, digits=3),round(stdTestAccuracies, digits=3),round(meanTestF1, digits=3),round(stdTestF1, digits=3)]
+    push!(results, nuevo)
 end
-numNeighbors = 2;
-println("best paremeters:  numNeighbors=1");
+for i in results
+    (numNeighbors, meanTestAccuracies, stdTestAccuracies, meanTestF1, stdTestF1) = i 
+    println("$numNeighbors & $meanTestAccuracies & $stdTestAccuracies & $meanTestF1 & $stdTestF1")
+end
+
+sorted_results = sort(results, by=x->x[4], rev=true)
+numNeighbors = convert(Int, sorted_results[1][1]);
+println("best paremeters:  numNeighbors= $numNeighbors");
 knn( Dict("numNeighbors" => numNeighbors), entrada, salida);
+
