@@ -6,9 +6,13 @@ using Images
 
 
 function loadData()
-    alnusImg = (load.("datasets/Alnus/".*readdir("Alnus")));
-    eucImg = (load.("datasets/Eucalyptus/".*readdir("Eucalyptus")));
-    corImg = (load.("datasets/Cornus/".*readdir("Cornus")));
+    path_actual = abspath(pwd())
+    rutaAlnus = path_actual*"/datasets/Alnus/"
+    rutaEucalyptus = path_actual*"/datasets/Eucalyptus/"
+    rutaCornus = path_actual*"/datasets/Cornus/"
+    alnusImg = (load.(rutaAlnus.*readdir(rutaAlnus)));
+    eucImg = (load.(rutaEucalyptus.*readdir(rutaEucalyptus)));
+    corImg = (load.(rutaCornus.*readdir(rutaCornus)));
 
     dataTxt = open("samples.data","w");
 
@@ -67,8 +71,8 @@ function writeData(imgArray, type::String, dataTxt)
         imagenObjetos[ x2 , y1:y2 ] .= RGB(0,1,0);
 
         centroides = ImageMorphology.component_centroids(labelArray)[2:end];
-        xc = Int(round(centroide[1]));
-        yc = Int(round(centroide[2]));
+        xc = Int(round(centroides[1]));
+        yc = Int(round(centroides[2]));
         imagenObjetos[ xc, yc ] = RGB(1,0,0);
 
 
