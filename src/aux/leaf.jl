@@ -70,30 +70,26 @@ function writeData(imgArray, type::String, dataTxt)
         imagenObjetos[ x1 , y1:y2 ] .= RGB(0,1,0);
         imagenObjetos[ x2 , y1:y2 ] .= RGB(0,1,0);
 
-        centroides = ImageMorphology.component_centroids(labelArray)[2:end];
-        xc = Int(round(centroides[1]));
-        yc = Int(round(centroides[2]));
-        imagenObjetos[ xc, yc ] = RGB(1,0,0);
-
-
-        #centro de masa, es igual
-        x_center_norm = xc/(x2-x1);
-        y_center_norm = yc/(y2-y1);
-
-        println("Centroide: ($x_center_norm, $y_center_norm)")
+        #centroides = ImageMorphology.component_centroids(labelArray)[2:end];
+        #xc = centroides[0];
+        #yc = centroides[1];
+        #imagenObjetos[ xc, yc ] = RGB(1,0,0);
+        #x_center_norm = xc/(x2-x1);
+        #y_center_norm = yc/(y2-y1);
+        #println("Centroide: ($xc, $yc)")
 
 
         formaimg=(y2-y1)/(x2-x1);
         total_pixels_bb=(y2-y1)*(x2-x1)
-        img_mat = convert(Matrix{Bool}, channelview(imagen)[1])
+        img_mat = convert(Matrix{Bool}, matrizBooleana)
 
         # Calculate center of mass
         m, n = size(img_mat)
-        x_c = sum([i*img_mat[i,j] for i in 1:m, j in 1:n]) / sum(img_mat)
-        y_c = sum([j*img_mat[i,j] for i in 1:m, j in 1:n]) / sum(img_mat)
+        x_c = sum([i*img_mat[i,j] for i in 1:m, j in 1:n]) / sum(img_mat) / m 
+        y_c = sum([j*img_mat[i,j] for i in 1:m, j in 1:n]) / sum(img_mat) / n
 
         # Print results
-        println("Center of mass: ($x_c, $y_c)")
+        #println("Center of mass: ($x_c, $y_c)")
 
         
         #display(imagenObjetos);
@@ -114,7 +110,7 @@ function writeData(imgArray, type::String, dataTxt)
         #simetria eje X, eje Y
         (sym_x, sym_y) = sym(gray_img, formaimg);
 
-        write(dataTxt, (string(porcentaje_blancos)*","*string(porcentaje_borde)*","*string(formaimg)*","*string(x_center_norm)*","*string(y_center_norm)*","*string(sym_x)*","*string(sym_y)*","*type*"\n"));
+        write(dataTxt, (string(porcentaje_blancos)*","*string(porcentaje_borde)*","*string(formaimg)*","*string(x_c)*","*string(y_c)*","*string(sym_x)*","*string(sym_y)*","*type*"\n"));
 
 
         # Imprime los resultados
