@@ -42,7 +42,7 @@ numRepetitionsANNTraining = 50; # Numero de veces que se va a entrenar la RNA pa
 kernel = "rbf";
 kernels = ["rbf", "linear", "poly", "sigmoid"];
 kernelDegree = 3;
-kernelGamma = 2;
+kernelGamma = "auto";
 C=1;
 
 # Parametros del arbol de decision
@@ -84,6 +84,7 @@ end;
 # Entrenamos los kNN
 #modelCrossValidation(knn, Dict("numNeighbors" => numNeighbors), entrada, salida, crossValidationIndices);
 
+resultsSVM = Array{Array{Float64,1},1}()
 
 
 for i in kernels
@@ -96,11 +97,13 @@ for i in kernels
         #modelCrossValidation(:SVM, modelHyperparameters, entrada, salida, crossValidationIndices);
         (meanTestAccuracies, stdTestAccuracies, meanTestF1, stdTestF1) = modelCrossValidation(SVM, modelHyperparameters, entrada, salida, crossValidationIndices);
 
-        #push!(precisiones, meanTestAccuracies);
-        #push!(desviacionTipica, stdTestAccuracies);
-        #push!(precisionesF1, meanTestF1);
-        #push!(desviacionTipicaF1, stdTestF1);
-        
+        nuevo =[ j*10, round(meanTestAccuracies, digits=3),round(stdTestAccuracies, digits=3),round(meanTestF1, digits=3),round(stdTestF1, digits=3)]
+        push!(resultsSVM, nuevo)
+    end
+    for h in resultsSVM
+        (C, meanTestAccuracies, stdTestAccuracies, meanTestF1, stdTestF1) = h
+        println("$C & $meanTestAccuracies & $stdTestAccuracies & $meanTestF1 & $stdTestF1")
+
         println("Accuracy: ", meanTestAccuracies);
         println("desviacionTipica: ", stdTestAccuracies);
         println("AccuracyF1: ", meanTestF1);
