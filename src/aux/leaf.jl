@@ -81,15 +81,15 @@ function writeData(imgArray, type::String, dataTxt)
 
         formaimg=(y2-y1)/(x2-x1);
         total_pixels_bb=(y2-y1)*(x2-x1)
-        img_mat = convert(Matrix{Bool}, matrizBooleana)
 
         # Calculate center of mass
-        m, n = size(img_mat)
-        x_c = sum([i*img_mat[i,j] for i in 1:m, j in 1:n]) / sum(img_mat) / m 
-        y_c = sum([j*img_mat[i,j] for i in 1:m, j in 1:n]) / sum(img_mat) / n
-
+        m, n = size(labelArray)
+        centroides = ImageMorphology.component_centroids(labelArray)[2:end];
+        centroide = centroides[1]
+        xc = Float32(round(centroide[1])/m);
+        yc = Float32(round(centroide[2])/n);
+        
         # Print results
-        #println("Center of mass: ($x_c, $y_c)")
 
         
         #display(imagenObjetos);
@@ -110,7 +110,7 @@ function writeData(imgArray, type::String, dataTxt)
         #simetria eje X, eje Y
         (sym_x, sym_y) = sym(gray_img, formaimg);
 
-        write(dataTxt, (string(porcentaje_blancos)*","*string(porcentaje_borde)*","*string(formaimg)*","*string(x_c)*","*string(y_c)*","*string(sym_x)*","*string(sym_y)*","*type*"\n"));
+        write(dataTxt, (string(porcentaje_blancos)*","*string(porcentaje_borde)*","*string(formaimg)*","*string(sym_x)*","*string(sym_y)*","*string(xc)*","*string(yc)*","*type*"\n"));
 
 
         # Imprime los resultados

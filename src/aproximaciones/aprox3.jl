@@ -104,10 +104,10 @@ for i in kernels
         (C, meanTestAccuracies, stdTestAccuracies, meanTestF1, stdTestF1) = h
         println("$C & $meanTestAccuracies & $stdTestAccuracies & $meanTestF1 & $stdTestF1")
 
-        println("Accuracy: ", meanTestAccuracies);
-        println("desviacionTipica: ", stdTestAccuracies);
-        println("AccuracyF1: ", meanTestF1);
-        println("desviacionTipicaF1: ", stdTestF1);
+        #println("Accuracy: ", meanTestAccuracies);
+        #println("desviacionTipica: ", stdTestAccuracies);
+        #println("AccuracyF1: ", meanTestF1);
+        #println("desviacionTipicaF1: ", stdTestF1);
     end
 
     #=best=findmax(precisionesF1);

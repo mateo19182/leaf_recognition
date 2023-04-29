@@ -16,8 +16,8 @@ Random.seed!(1);
 
 #loadData();
 #ruta_absoluta = abspath("../data/samples3.data")
-bd = readdlm("src/data/samples3.data",',');
-entrada = bd[:,1:6];
+bd = readdlm("src/data/samples4.data",',');
+entrada = bd[:,1:7];
 entrada = convert(Array{Float32}, entrada);
 normalmaxmin(entrada);
 salida = bd[:,end];
@@ -81,9 +81,11 @@ for maxDepth in maxDepths
     println("AccuracyF1: ", meanTestF1);
     println("desviacionTipicaF1: ", stdTestF1);
 end;
+
 # Entrenamos los kNN
 #modelCrossValidation(knn, Dict("numNeighbors" => numNeighbors), entrada, salida, crossValidationIndices);
 
+resultsSVM = Array{Array{Float64,1},1}()
 
 
 for i in kernels
@@ -107,6 +109,10 @@ for i in kernels
         println("desviacionTipicaF1: ", stdTestF1);
     end
 
+    for h in resultsSVM
+        (C, meanTestAccuracies, stdTestAccuracies, meanTestF1, stdTestF1) = h
+        println("$C & $meanTestAccuracies & $stdTestAccuracies & $meanTestF1 & $stdTestF1")
+    end
     #=best=findmax(precisionesF1);
     println("C:")
     print(best)
@@ -128,10 +134,10 @@ for j in 1:10
 
     (meanTestAccuracies, stdTestAccuracies, meanTestF1, stdTestF1) = modelCrossValidation(knn, Dict("numNeighbors" => numNeighbors), entrada, salida, crossValidationIndices);
     
-    println("Accuracy: ", meanTestAccuracies);
-    println("desviacionTipica: ", stdTestAccuracies);
-    println("AccuracyF1: ", meanTestF1);
-    println("desviacionTipicaF1: ", stdTestF1);
+    #println("Accuracy: ", meanTestAccuracies);
+    #println("desviacionTipica: ", stdTestAccuracies);
+    #println("AccuracyF1: ", meanTestF1);
+    #println("desviacionTipicaF1: ", stdTestF1);
     nuevo =[ numNeighbors,round(meanTestAccuracies, digits=3),round(stdTestAccuracies, digits=3),round(meanTestF1, digits=3),round(stdTestF1, digits=3)]
     push!(results, nuevo)
 end
