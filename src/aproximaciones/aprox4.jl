@@ -92,21 +92,22 @@ for i in kernels
     println(i);
     modelHyperparameters["kernel"] = i;
     for j in 1:10
-        println(" C: ", j*10)  #valor que cambia
+        #println(" C: ", j*10)  #valor que cambia
         modelHyperparameters["C"] = C*j;
 
         #modelCrossValidation(:SVM, modelHyperparameters, entrada, salida, crossValidationIndices);
         (meanTestAccuracies, stdTestAccuracies, meanTestF1, stdTestF1) = modelCrossValidation(SVM, modelHyperparameters, entrada, salida, crossValidationIndices);
-
+        nuevo =[ j*10, round(meanTestAccuracies, digits=3),round(stdTestAccuracies, digits=3),round(meanTestF1, digits=3),round(stdTestF1, digits=3)]
+        push!(resultsSVM, nuevo)
         #push!(precisiones, meanTestAccuracies);
         #push!(desviacionTipica, stdTestAccuracies);
         #push!(precisionesF1, meanTestF1);
         #push!(desviacionTipicaF1, stdTestF1);
         
-        println("Accuracy: ", meanTestAccuracies);
-        println("desviacionTipica: ", stdTestAccuracies);
-        println("AccuracyF1: ", meanTestF1);
-        println("desviacionTipicaF1: ", stdTestF1);
+        #println("Accuracy: ", meanTestAccuracies);
+        #println("desviacionTipica: ", stdTestAccuracies);
+        #println("AccuracyF1: ", meanTestF1);
+        #println("desviacionTipicaF1: ", stdTestF1);
     end
 
     for h in resultsSVM
