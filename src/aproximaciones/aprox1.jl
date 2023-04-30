@@ -168,4 +168,4 @@ end
 sorted_resultsDT = sort(resultsDT, by=x->x[4], rev=true)
 bestDepth = convert(Int, sorted_resultsDT[1][1]);
 println("best paremeters:  depth= $bestDepth");
-#DecisionTree(Dict("maxDepth" => bestDepth, entrada, salida));
+DecisionTree(Dict("maxDepth" => bestDepth), entrada, salida);
