@@ -1,11 +1,15 @@
 
 using FileIO
 using Images
+
 ######################################################################################################################
-#Funciones#
+#se encarga de leer las imagenes y extraer las características de ellas.
+#las caracteristicas son: forma de la imagen, numero de pixeles blancos, numero de pixels de borde,  la simetría ejeX y ejeY, centro de masa.
+
 
 
 function loadData()
+    #carga el path de las imagenes y las lee. es necesario correrlo desde el directorio base del repositorio.
     path_actual = abspath(pwd())
     rutaAlnus = path_actual*"/datasets/Alnus/"
     rutaEucalyptus = path_actual*"/datasets/Eucalyptus/"
@@ -25,6 +29,7 @@ end;
 
 
 function sym(imagenObjetos, formaimg)
+    #extrae la simetria de la imagen diviendiendo la imagen en 2 por el eje X y el Y y comparando las mitades.
     img_size = size(imagenObjetos);
     img_croppedx1= @view imagenObjetos[ : , floor(Int, 1/2*img_size[2]) : floor(Int, img_size[2])  ]
     img_croppedx2= @view imagenObjetos[ : , floor(Int, 1) : floor(Int, 1/2*img_size[2]) ]
@@ -36,6 +41,7 @@ function sym(imagenObjetos, formaimg)
     img_flipy1 = reverse(img_croppedy1, dims=1)
     sym_y=assess_ssim(img_croppedy2r, img_flipy1);
     sym_x=assess_ssim(img_croppedx2r, img_flipx1);
+    #dependiendo de si la imagen esta en vertical o en horizontal cambia el orden.
     if (formaimg>1)
         return (sym_x, sym_y)
     else 
@@ -45,20 +51,21 @@ end
 
 function writeData(imgArray, type::String, dataTxt)
     for imagen in imgArray
+        #se pasa la imagen a blanco y negro
         matrizBN = gray.(imagen);
+        
+        #se detectan objetos en la imagen (la hoja) y nos quedamos con el mas grande.
         labelArray = ImageMorphology.label_components(matrizBN);
         #println("Se han detectado $(maximum(labelArray)) objetos")
-
         tamanos = component_lengths(labelArray);
         etiquetasEliminar = findall(tamanos .<= 100) .- 1; 
         matrizBooleana = [!in(etiqueta,etiquetasEliminar) && (etiqueta!=0) for etiqueta in labelArray];
-        ##display(Gray.(matrizBN));
-
+        #display(Gray.(matrizBN));
         labelArray = ImageMorphology.label_components(matrizBooleana);
         #println("Se han detectado $(maximum(labelArray)) objetos grandes")
 
+        #se calcula el bounding box y se dibuja
         imagenObjetos = RGB.(matrizBooleana, matrizBooleana, matrizBooleana);
-
         boundingBoxes = ImageMorphology.component_boxes(labelArray)[2:end];
         boundingBox=boundingBoxes[1];
         x1 = boundingBox[1][1];
@@ -70,35 +77,20 @@ function writeData(imgArray, type::String, dataTxt)
         imagenObjetos[ x1 , y1:y2 ] .= RGB(0,1,0);
         imagenObjetos[ x2 , y1:y2 ] .= RGB(0,1,0);
 
-        #centroides = ImageMorphology.component_centroids(labelArray)[2:end];
-        #xc = centroides[0];
-        #yc = centroides[1];
-        #imagenObjetos[ xc, yc ] = RGB(1,0,0);
-        #x_center_norm = xc/(x2-x1);
-        #y_center_norm = yc/(y2-y1);
-        #println("Centroide: ($xc, $yc)")
-
-
+        #se calcula la forma de la imagen y el total de pixeles en el bounding box.
         formaimg=(y2-y1)/(x2-x1);
         total_pixels_bb=(y2-y1)*(x2-x1)
 
-        # Calculate center of mass
+        #se calcula el center of mass, en este caso equivalente al centroide.
         m, n = size(labelArray)
         centroides = ImageMorphology.component_centroids(labelArray)[2:end];
         centroide = centroides[1]
         xc = Float32(round(centroide[1])/m);
         yc = Float32(round(centroide[2])/n);
         
-        # Print results
-
-        
-        #display(imagenObjetos);
-        #save("imagenProcesada.jpg", imagenObjetos)
         gray_img = Gray.(imagenObjetos);
         pixels = convert(Array{Float64}, gray_img);
-
         n_pixels = length(pixels)
-
         # Cuenta el número de píxeles blancos (valor = 1) comparado con los negros
         n_white_pixels = count(x -> x == 1, pixels);
         porcentaje_blancos = n_white_pixels/total_pixels_bb;
@@ -110,28 +102,26 @@ function writeData(imgArray, type::String, dataTxt)
         #simetria eje X, eje Y
         (sym_x, sym_y) = sym(gray_img, formaimg);
 
+        #escribe los resultados al .data
         write(dataTxt, (string(porcentaje_blancos)*","*string(porcentaje_borde)*","*string(formaimg)*","*string(sym_x)*","*string(sym_y)*","*string(xc)*","*string(yc)*","*type*"\n"));
 
 
         # Imprime los resultados
-
         #numero de pixeles blancos / total pixeles bb
         #println("Porcentaje de borde: $porcentaje");
-
         #numero de pixeles borde / total pixeles blanco imagen
         #println("Porcentaje de pixeles blancos: $porcentaje");
-
         #ancho entre alto del bounding box
         #println("bb $formaimg")
     end;
 end;
 
 function border(img)
+    #calcula el reborde de una imagen
     corners =  fastcorners(img, 11, 0.1)
-    #img_copy = RGB.(img)
-    #img_copy[corners] .= RGB(1.0, 0.0, 0.0)
-    #isplay(img_copy)
     return count(corners)
 end
 
-loadData();
+
+#si se quiere correr desde este archivo
+#loadData();

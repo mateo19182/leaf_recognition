@@ -35,7 +35,7 @@ kernel = "rbf";
 kernels = ["rbf", "linear", "poly", "sigmoid"];
 kernelDegree = 3;
 kernelGamma = 2;
-C=1;
+C=10;
 
 # Parametros del arbol de decision
 maxDepths = [2;3;4;5;7;9];
@@ -69,7 +69,7 @@ y=0:10; # segunda capa
 resultsRNA = Array{Array{Any,1},1}()
 for j in y,i in x
     if j==0
-       modelHyperparameters["topology"] = [i];
+        modelHyperparameters["topology"] = [i];
     else
         modelHyperparameters["topology"] = [i,j];  
     end
