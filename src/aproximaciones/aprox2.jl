@@ -14,7 +14,6 @@ include("../algoritmos/RNA.jl");
 Random.seed!(1);
 
 #Cargar los datos y extraer las características de esa aproximación.
-
 #loadData();
 #ruta_absoluta = abspath("src/data/samples1.data")
 bd = readdlm("src/data/samples2.data",',');

@@ -4,8 +4,8 @@ using Statistics
 
 
 
-#solo hace falta normalizar el 3er atributo
 function normalmaxmin(patrones::Array{Float32,2})
+    #solo hace falta normalizar el 3er atributo
     minimo = minimum(patrones[:,3], dims=1);
     maximo = maximum(patrones[:,3], dims=1);
     patrones[:,3] .-= minimo;
@@ -267,9 +267,7 @@ function printConfusionMatrix(outputs::AbstractArray{<:Any,1}, targets::Abstract
     # Es importante calcular el vector de clases primero y pasarlo como argumento a las 2 llamadas a oneHotEncoding para que el orden de las clases sea el mismo en ambas matrices
     return printConfusionMatrix(oneHotEncoding(outputs, classes), oneHotEncoding(targets, classes); weighted=weighted);
 end;
+
 printConfusionMatrix(outputs::AbstractArray{<:Real,2}, targets::AbstractArray{Bool,2}; weighted::Bool=true) =  printConfusionMatrix(classifyOutputs(outputs), targets; weighted=weighted)
-
-
-
 printConfusionMatrix(outputs::AbstractArray{Bool,1},   targets::AbstractArray{Bool,1})                      = printConfusionMatrix(reshape(outputs, :, 1), targets);
 printConfusionMatrix(outputs::AbstractArray{<:Real,1}, targets::AbstractArray{Bool,1}; threshold::Real=0.5) = printConfusionMatrix(outputs.>=threshold,    targets);
