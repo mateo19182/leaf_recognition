@@ -4,20 +4,44 @@ using Flux.Losses
 using Flux: onehotbatch, onecold
 using JLD2, FileIO
 using Statistics: mean
+using StatsBase
 using Images
+
+
+function extract(path::AbstractString)
+    path_parts = split(path, "/")
+    filename = last(path_parts)
+    filename_without_ext = split(filename, ".")[1]
+    filename_parts = split(filename_without_ext, "_")
+    species_name = last(filename_parts)
+    return species_name
+end
+
 
 path_actual = abspath(pwd())
 
-#hacer todas las imagenes del mismo tamaño con la moda d x e y;
 
 train_imgs = (load.(path_actual*"/datasets/train_imgs/".*readdir(path_actual*"/datasets/train_imgs/")));
-train_imgs = (load.(path_actual*"/datasets/test_imgs/".*readdir(path_actual*"/datasets/test_imgs/")));
+test_imgs = (load.(path_actual*"/datasets/test_imgs/".*readdir(path_actual*"/datasets/test_imgs/")));
 
-#crear los labels (a partir del nombre d la imagen ?¿)
-train_labels = 
-test_labels  = 
+#hacer todas las imagenes del mismo tamaño con la moda d x e y;
+#image_sizes = size.(train_imgs);
+#mode_size = mode(image_sizes);
+#train_imgs = [imresize(img, (mode_size[1], mode_size[2])) for img in train_imgs];
+#test_imgs = [imresize(img, (mode_size[1], mode_size[2])) for img in test_imgs];
 
-labels = ["Cornus", "Alnus", "Eucalyptus"]; # Las etiquetas
+#teniendo en cuenta que algunas imagenes estan en vertical y otras en horizontal, es mejor ponerlas cuadradas
+train_imgs = [imresize(img, (512, 512)) for img in train_imgs];
+test_imgs = [imresize(img, (512, 512)) for img in test_imgs];
+
+#crear los labels (a partir del nombre d la imagen
+train_labels = [];
+push!(train_labels, extract.((path_actual*"/datasets/train_imgs/".*readdir(path_actual*"/datasets/train_imgs/"))));
+
+test_labels  =  [];
+push!(test_labels, extract.((path_actual*"/datasets/train_imgs/".*readdir(path_actual*"/datasets/train_imgs/"))));
+
+labels = ["cornus", "alnus", "eucalyptus"]; # Las etiquetas
 
 # Tanto train_imgs como test_imgs son arrays de arrays bidimensionales (arrays de imagenes), es decir, son del tipo Array{Array{Float32,2},1}
 #  Generalmente en Deep Learning los datos estan en tipo Float32 y no Float64, es decir, tienen menos precision
@@ -36,9 +60,9 @@ labels = ["Cornus", "Alnus", "Eucalyptus"]; # Las etiquetas
 
 function convertirArrayImagenesHWCN(imagenes)
     numPatrones = length(imagenes);
-    nuevoArray = Array{Float32,4}(undef, 28, 28, 1, numPatrones); # Igual cambiar el 28 por el tamaño de las imagenes
+    nuevoArray = Array{Float32,4}(undef, 512, 512, 1, numPatrones); # Igual cambiar el 28 por el tamaño de las imagenes
     for i in 1:numPatrones
-        @assert (size(imagenes[i])==(28,28)) "Las imagenes no tienen tamaño 28x28"; #
+        @assert (size(imagenes[i])==(512,512)) "Las imagenes no tienen tamaño 512x512"; 
         nuevoArray[:,:,1,i] .= imagenes[i][:,:];
     end;
     return nuevoArray;
