@@ -36,10 +36,15 @@ test_imgs = [imresize(img, (512, 512)) for img in test_imgs];
 
 #crear los labels (a partir del nombre d la imagen
 train_labels = [];
-push!(train_labels, extract.((path_actual*"/datasets/train_imgs/".*readdir(path_actual*"/datasets/train_imgs/"))));
 
+train_labels = convert.(String, extract.((path_actual*"/datasets/train_imgs/".*readdir(path_actual*"/datasets/train_imgs/"))))
+
+# push!(train_labels, aux);
 test_labels  =  [];
-push!(test_labels, extract.((path_actual*"/datasets/train_imgs/".*readdir(path_actual*"/datasets/train_imgs/"))));
+
+test_labels      = convert.(String, extract.((path_actual*"/datasets/train_imgs/".*readdir(path_actual*"/datasets/train_imgs/"))))
+
+# push!(test_labels, aux1);
 
 labels = ["cornus", "alnus", "eucalyptus"]; # Las etiquetas
 
@@ -91,7 +96,7 @@ println("Valores minimo y maximo de las entradas: (", minimum(train_imgs), ", ",
 
 # Hacemos los indices para las particiones
 # Cuantos patrones va a tener cada particion
-batch_size = 1
+batch_size = 128
 # Creamos los indices: partimos el vector 1:N en grupos de batch_size
 gruposIndicesBatch = Iterators.partition(1:size(train_imgs,4), batch_size);
 println("He creado ", length(gruposIndicesBatch), " grupos de indices para distribuir los patrones en batches");
@@ -106,7 +111,7 @@ println("He creado ", length(gruposIndicesBatch), " grupos de indices para distr
 #  Por tanto, cada batch será un par dado por
 #     (train_imgs[:,:,:,indicesBatch], onehotbatch(train_labels[indicesBatch], labels))
 # Sólo resta iterar por cada batch para construir el vector de batches
-train_set = [ (train_imgs[:,:,:,indicesBatch], onehotbatch(train_labels[indicesBatch], labels)) for indicesBatch in gruposIndicesBatch];
+train_set = [ (train_imgs[:,:,:,indicesBatch], onehotbatch(train_labels[indicesBatch], labels)) for indicesBatch in gruposIndicesBatch]; 
 
 # Creamos un batch similar, pero con todas las imagenes de test
 test_set = (test_imgs, onehotbatch(test_labels, labels));
@@ -187,7 +192,9 @@ ann = Chain(
     #   Se toman 10 salidas porque tenemos 10 clases (numeros de 0 a 9)
     # Entradas a esta capa: matriz 4D de dimension 288 x <numPatrones>
     # Salidas de esta capa: matriz 4D de dimension  10 x <numPatrones>
-    Dense(288, 10),
+    
+    #Esta entrada es la que hay que solucionar
+    Dense(131072, 3),
 
     # Finalmente, capa softmax
     #  Toma las salidas de la capa anterior y aplica la funcion softmax de tal manera
@@ -217,7 +224,7 @@ numBatchCoger = 1; numImagenEnEseBatch = [12, 6];
 #   train_set[numBatchCoger][1] -> El primer elemento de esa tupla, es decir, las entradas de ese batch
 #   train_set[numBatchCoger][1][:,:,:,numImagenEnEseBatch] -> Los patrones seleccionados de las entradas de ese batch
 entradaCapa = train_set[numBatchCoger][1][:,:,:,numImagenEnEseBatch];
-numCapas = length(params(ann));
+numCapas = length(Flux.params(ann));
 println("La RNA tiene ", numCapas, " capas:");
 for numCapa in 1:numCapas
     println("   Capa ", numCapa, ": ", ann[numCapa]);
