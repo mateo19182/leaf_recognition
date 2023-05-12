@@ -1,4 +1,3 @@
-
 using Flux
 using Flux.Losses
 using Flux: onehotbatch, onecold
@@ -6,6 +5,7 @@ using JLD2, FileIO
 using Statistics: mean
 using StatsBase
 using Images
+
 
 
 function extract(path::AbstractString)
@@ -19,6 +19,7 @@ end
 
 
 path_actual = abspath(pwd())
+
 
 
 train_imgs = (load.(path_actual*"/datasets/train_imgs/".*readdir(path_actual*"/datasets/train_imgs/")));
@@ -42,7 +43,7 @@ train_labels = convert.(String, extract.((path_actual*"/datasets/train_imgs/".*r
 # push!(train_labels, aux);
 test_labels  =  [];
 
-test_labels      = convert.(String, extract.((path_actual*"/datasets/train_imgs/".*readdir(path_actual*"/datasets/train_imgs/"))))
+test_labels      = convert.(String, extract.((path_actual*"/datasets/test_imgs/".*readdir(path_actual*"/datasets/train_imgs/"))))
 
 # push!(test_labels, aux1);
 
@@ -87,8 +88,6 @@ println("Valores minimo y maximo de las entradas: (", minimum(train_imgs), ", ",
 
 
 
-
-
 # Cuando se tienen tantos patrones de entrenamiento (en este caso 60000),
 #  generalmente no se entrena pasando todos los patrones y modificando el error
 #  En su lugar, el conjunto de entrenamiento se divide en subconjuntos (batches)
@@ -96,7 +95,7 @@ println("Valores minimo y maximo de las entradas: (", minimum(train_imgs), ", ",
 
 # Hacemos los indices para las particiones
 # Cuantos patrones va a tener cada particion
-batch_size = 128
+batch_size = size(train_imgs,4)
 # Creamos los indices: partimos el vector 1:N en grupos de batch_size
 gruposIndicesBatch = Iterators.partition(1:size(train_imgs,4), batch_size);
 println("He creado ", length(gruposIndicesBatch), " grupos de indices para distribuir los patrones en batches");
@@ -115,7 +114,6 @@ train_set = [ (train_imgs[:,:,:,indicesBatch], onehotbatch(train_labels[indicesB
 
 # Creamos un batch similar, pero con todas las imagenes de test
 test_set = (test_imgs, onehotbatch(test_labels, labels));
-
 
 # Hago esto simplemente para liberar memoria, las variables train_imgs y test_imgs ocupan mucho y ya no las vamos a usar
 train_imgs = nothing;
@@ -141,7 +139,7 @@ ann = Chain(
     #  Es decir, se generan 16 imagenes a partir de la imagen original con filtros 3x3
     # Entradas a esta capa: matriz 4D de dimension 28 x 28 x 1canal    x <numPatrones>
     # Salidas de esta capa: matriz 4D de dimension 28 x 28 x 16canales x <numPatrones>
-    Conv((3, 3), 1=>16, pad=(1,1), funcionTransferenciaCapasConvolucionales),
+    Conv((3, 3), 1=>4, pad=(1,1), funcionTransferenciaCapasConvolucionales),
 
     # Capa maxpool: es una funcion
     # Divide el tamaño en 2 en el eje x y en el eje y: Pasa imagenes 28x28 a 14x14
@@ -156,7 +154,7 @@ ann = Chain(
     #  Es decir, se generan 32 imagenes a partir de las 16 imagenes de entrada con filtros 3x3
     # Entradas a esta capa: matriz 4D de dimension 14 x 14 x 16canales x <numPatrones>
     # Salidas de esta capa: matriz 4D de dimension 14 x 14 x 32canales x <numPatrones>
-    Conv((3, 3), 16=>32, pad=(1,1), funcionTransferenciaCapasConvolucionales),
+    Conv((3, 3), 4=>8, pad=(1,1), funcionTransferenciaCapasConvolucionales),
 
     # Capa maxpool: es una funcion
     # Divide el tamaño en 2 en el eje x y en el eje y: Pasa imagenes 14x14 a 7x7
@@ -171,7 +169,8 @@ ann = Chain(
     #  Es decir, se generan 32 imagenes a partir de las 32 imagenes de entrada con filtros 3x3
     # Entradas a esta capa: matriz 4D de dimension 7 x 7 x 32canales x <numPatrones>
     # Salidas de esta capa: matriz 4D de dimension 7 x 7 x 32canales x <numPatrones>
-    Conv((3, 3), 32=>32, pad=(1,1), funcionTransferenciaCapasConvolucionales),
+    Conv((3, 3), 8=>8, pad=(1,1), funcionTransferenciaCapasConvolucionales),
+
 
     # Capa maxpool: es una funcion
     # Divide el tamaño en 2 en el eje x y en el eje y: Pasa imagenes 7x7 a 3x3
@@ -194,7 +193,7 @@ ann = Chain(
     # Salidas de esta capa: matriz 4D de dimension  10 x <numPatrones>
     
     #Esta entrada es la que hay que solucionar
-    Dense(131072, 3),
+    Dense(32768, 3),
 
     # Finalmente, capa softmax
     #  Toma las salidas de la capa anterior y aplica la funcion softmax de tal manera
@@ -209,7 +208,6 @@ ann = Chain(
     #  Es decir, no habria capa softmax, y la capa totalmente conectada seria la ultima, y seria Dense(288, 10, σ)
 
 )
-
 
 
 
@@ -275,19 +273,18 @@ while (!criterioFin)
 
     # Hay que declarar las variables globales que van a ser modificadas en el interior del bucle
     global numCicloUltimaMejora, numCiclo, mejorPrecision, mejorModelo, criterioFin;
-
     # Se entrena un ciclo
-    Flux.train!(loss, params(ann), train_set, opt);
+    Flux.train!(loss, Flux.params(ann), train_set, opt);
 
     numCiclo += 1;
-
     # Se calcula la precision en el conjunto de entrenamiento:
     precisionEntrenamiento = mean(accuracy.(train_set));
     println("Ciclo ", numCiclo, ": Precision en el conjunto de entrenamiento: ", 100*precisionEntrenamiento, " %");
 
     # Si se mejora la precision en el conjunto de entrenamiento, se calcula la de test y se guarda el modelo
-    if (precisionEntrenamiento >= mejorPrecision)
+      if (precisionEntrenamiento >= mejorPrecision)
         mejorPrecision = precisionEntrenamiento;
+        println("test_set")
         precisionTest = accuracy(test_set);
         println("   Mejora en el conjunto de entrenamiento -> Precision en el conjunto de test: ", 100*precisionTest, " %");
         mejorModelo = deepcopy(ann);
