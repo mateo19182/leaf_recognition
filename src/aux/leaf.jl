@@ -14,15 +14,21 @@ function loadData()
     rutaAlnus = path_actual*"/datasets/Alnus/"
     rutaEucalyptus = path_actual*"/datasets/Eucalyptus/"
     rutaCornus = path_actual*"/datasets/Cornus/"
+    rutaTilia = path_actual*"/datasets/Tilia/"
+
     alnusImg = (load.(rutaAlnus.*readdir(rutaAlnus)));
     eucImg = (load.(rutaEucalyptus.*readdir(rutaEucalyptus)));
     corImg = (load.(rutaCornus.*readdir(rutaCornus)));
+    tilImg = (load.(rutaTilia.*readdir(rutaTilia)));
 
-    dataTxt = open("samples.data","w");
+
+    dataTxt = open("samples5.data","w");
 
     writeData(alnusImg, "Alnus", dataTxt);
     writeData(eucImg, "Eucalyptus", dataTxt);
     writeData(corImg, "Cornus", dataTxt);
+    writeData(tilImg, "Tilia", dataTxt);
+
 
     close(dataTxt);
 end;
@@ -124,4 +130,4 @@ end
 
 
 #si se quiere correr desde este archivo
-#loadData();
+loadData();
