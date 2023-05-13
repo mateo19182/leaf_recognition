@@ -53,11 +53,12 @@ function modelCrossValidation(fun::Function , modelHyperparameters::Dict, inputs
         modelType = nameof(fun)
     # Para cada fold, entrenamos
     for numFold in 1:numFolds
-        acc , F1 = fun(modelHyperparameters,inputs,targets,crossValidationIndices,numFold);
+        #acc , F1 = 
+        fun(modelHyperparameters,inputs,targets,crossValidationIndices,numFold);
 
         # Almacenamos las 2 metricas que usamos en este problema
-        testAccuracies[numFold] = acc;
-        testF1[numFold]         = F1;
+        testAccuracies[numFold] = 0;
+        testF1[numFold]         = 0;
         #println("Results in test in fold ", numFold, "/", numFolds, ": accuracy: ", 100*testAccuracies[numFold], " %, F1: ", 100*testF1[numFold], " %");
     end; # for numFold in 1:numFolds
     return (mean(testAccuracies), std(testAccuracies), mean(testF1), std(testF1));

@@ -44,7 +44,7 @@ function DeepLearning(modelHyperparameters, inputs,targets,crossValidationIndice
     # push!(train_labels, aux);
     test_labels  =  [];
 
-    test_labels      = convert.(String, extract.((path_actual*"/datasets/test_imgs/".*readdir(path_actual*"/datasets/train_imgs/"))))
+    test_labels      = convert.(String, extract.((path_actual*"/datasets/test_imgs/".*readdir(path_actual*"/datasets/test_imgs/"))))
 
     # push!(test_labels, aux1);
 
@@ -218,25 +218,29 @@ function DeepLearning(modelHyperparameters, inputs,targets,crossValidationIndice
 
     # # Vamos a probar la RNA capa por capa y poner algunos datos de cada capa
     # # Usaremos como entrada varios patrones de un batch
-    # numBatchCoger = 1; numImagenEnEseBatch = [12, 6];
+    numBatchCoger = 1; numImagenEnEseBatch = [12, 6];
     # # Para coger esos patrones de ese batch:
     # #  train_set es un array de tuplas (una tupla por batch), donde, en cada tupla, el primer elemento son las entradas y el segundo las salidas deseadas
     # #  Por tanto:
     # #   train_set[numBatchCoger] -> La tupla del batch seleccionado
     # #   train_set[numBatchCoger][1] -> El primer elemento de esa tupla, es decir, las entradas de ese batch
     # #   train_set[numBatchCoger][1][:,:,:,numImagenEnEseBatch] -> Los patrones seleccionados de las entradas de ese batch
-    # entradaCapa = train_set[numBatchCoger][1][:,:,:,numImagenEnEseBatch];
-    # numCapas = length(Flux.params(ann));
-    # println("La RNA tiene ", numCapas, " capas:");
-    # for numCapa in 1:numCapas
-    #     println("   Capa ", numCapa, ": ", ann[numCapa]);
-    #     # Le pasamos la entrada a esta capa
-    #     global entradaCapa # Esta linea es necesaria porque la variable entradaCapa es global y se modifica en este bucle
-    #     capa = ann[numCapa];
-    #     salidaCapa = capa(entradaCapa);
-    #     println("      La salida de esta capa tiene dimension ", size(salidaCapa));
-    #     entradaCapa = salidaCapa;
-    # end
+    entradaCapa = train_set[numBatchCoger][1][:,:,:,numImagenEnEseBatch];
+    numCapas = length(Flux.params(ann));
+    println("La RNA tiene ", numCapas, " capas:");
+    for numCapa in 1:numCapas
+        println("   Capa ", numCapa, ": ", ann[numCapa]);
+        println("   EntradaCapa ", size(entradaCapa));
+
+        # Le pasamos la entrada a esta capa
+        #global entradaCapa # Esta linea es necesaria porque la variable entradaCapa es global y se modifica en este bucle
+        capa = ann[numCapa];
+        salidaCapa = capa(entradaCapa);
+        println("      La salida de esta capa tiene dimension ", size(salidaCapa));
+        entradaCapa = salidaCapa;
+    end
+
+
 
     # # Sin embargo, para aplicar un patron no hace falta hacer todo eso.
     # #  Se puede aplicar patrones a la RNA simplemente haciendo, por ejemplo
@@ -276,7 +280,7 @@ function DeepLearning(modelHyperparameters, inputs,targets,crossValidationIndice
     while (!criterioFin)
 
         # Hay que declarar las variables globales que van a ser modificadas en el interior del bucle
-        global numCicloUltimaMejora, numCiclo, mejorPrecision, mejorModelo, criterioFin;
+        #global numCicloUltimaMejora, numCiclo, mejorPrecision, mejorModelo, criterioFin;
         # Se entrena un ciclo
         Flux.train!(loss, Flux.params(ann), train_set, opt);
 
@@ -288,7 +292,7 @@ function DeepLearning(modelHyperparameters, inputs,targets,crossValidationIndice
         # Si se mejora la precision en el conjunto de entrenamiento, se calcula la de test y se guarda el modelo
         if (precisionEntrenamiento >= mejorPrecision)
             mejorPrecision = precisionEntrenamiento;
-            println("test_set")
+            println("test_set ... ", mejorPrecision, precisionEntrenamiento);
             precisionTest = accuracy(test_set);
             println("   Mejora en el conjunto de entrenamiento -> Precision en el conjunto de test: ", 100*precisionTest, " %");
             mejorModelo = deepcopy(ann);
