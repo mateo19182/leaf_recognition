@@ -11,6 +11,7 @@ using Images
 function loadData()
     #carga el path de las imagenes y las lee. es necesario correrlo desde el directorio base del repositorio.
     path_actual = abspath(pwd())
+    path_actual = split(path_actual,"src/")[1]
     rutaAlnus = path_actual*"/datasets/Alnus/"
     rutaEucalyptus = path_actual*"/datasets/Eucalyptus/"
     rutaCornus = path_actual*"/datasets/Cornus/"
@@ -22,15 +23,15 @@ function loadData()
     tilImg = (load.(rutaTilia.*readdir(rutaTilia)));
 
 
-    dataTxt = open("samples5.data","w");
+    #dataTxt = open("samples5.data","w");
 
-    writeData(alnusImg, "Alnus", dataTxt);
-    writeData(eucImg, "Eucalyptus", dataTxt);
-    writeData(corImg, "Cornus", dataTxt);
-    writeData(tilImg, "Tilia", dataTxt);
+    #writeData(alnusImg, "Alnus", dataTxt);
+    #writeData(eucImg, "Eucalyptus", dataTxt);
+    #writeData(corImg, "Cornus", dataTxt);
+    #writeData(tilImg, "Tilia", dataTxt);
 
 
-    close(dataTxt);
+    #close(dataTxt);
 end;
 
 

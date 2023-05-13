@@ -16,12 +16,13 @@ Random.seed!(1);
 
 #loadData();
 #ruta_absoluta = abspath("../data/samples3.data")
-bd = readdlm("src/data/samples3.data",',');
-entrada = bd[:,1:5];
-entrada = convert(Array{Float32}, entrada);
-normalmaxmin(entrada);
-salida = bd[:,end];
-salida = convert(Array{String}, salida);
+#bd = readdlm("src/data/samples3.data",',');
+#entrada = bd[:,1:5];
+#entrada = convert(Array{Float32}, entrada);
+#normalmaxmin(entrada);
+#salida = bd[:,end];
+#salida = convert(Array{String}, salida);
+entrada, salida = loadDataSet("samples3.data",5);
 numPatrones = size(entrada, 1);
 
 println("Tamaño de la matriz de entradas: ", size(entrada,1), "x", size(entrada,2), " de tipo ", typeof(entrada));

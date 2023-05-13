@@ -16,15 +16,16 @@ Random.seed!(1);
 
 #Cargar los datos y extraer las características de esa aproximación.
 #loadData();
-bd = readdlm("src/data/samples1.data",',');
+#bd = readdlm("src/data/samples1.data",',');
 
 #hay 3 caracteristicas: forma de la imagen, numero de pixeles blancos, numero de pixels de borde de la hoja.
-entrada = bd[:,1:3];
-entrada = convert(Array{Float32}, entrada);
-normalmaxmin(entrada);
-#hay 2 clases: Alnus y Eucalyptus
-salida = bd[:,end];
-salida = convert(Array{String}, salida);
+#entrada = bd[:,1:3];
+#entrada = convert(Array{Float32}, entrada);
+#normalmaxmin(entrada);
+##hay 2 clases: Alnus y Eucalyptus
+#salida = bd[:,end];
+#salida = convert(Array{String}, salida);
+entrada,salida = loadDataSet("samples1.data",3);
 numPatrones = size(entrada, 1);
 println("Tamaño de la matriz de entradas: ", size(entrada,1), "x", size(entrada,2), " de tipo ", typeof(entrada));
 println("Longitud del vector de salidas deseadas antes de codificar: ", length(salida), " de tipo ", typeof(salida));
