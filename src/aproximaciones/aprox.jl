@@ -27,7 +27,6 @@ function aproximacion(entrada, salida, numFolds,numPatrones)
 
 
     # Parametros principales de la RNA y del proceso de entrenamiento
-    # topology = [4,3]; # Dos capas ocultas con 4 neuronas la primera y 3 la segunda
     learningRate = 0.01; # Tasa de aprendizaje
     numMaxEpochs = 1000; # Numero maximo de ciclos de entrenamiento
     validationRatio = 0.2; # Porcentaje de patrones que se usaran para validacion. Puede ser 0, para no usar validacion
@@ -35,6 +34,9 @@ function aproximacion(entrada, salida, numFolds,numPatrones)
     numRepetitionsANNTraining = 50; # Numero de veces que se va a entrenar la RNA para cada fold por el hecho de ser no determinístico el entrenamiento
 
     # --------------------------------------------------------RR.NN.AA.----------------------------------------------------------------
+    println("")
+    println("Ejecución : RNA")
+    println("")
     modelHyperparameters = Dict();
     # modelHyperparameters["topology"] = topology;
     modelHyperparameters["learningRate"] = learningRate;
@@ -71,26 +73,22 @@ function aproximacion(entrada, salida, numFolds,numPatrones)
     end
 
     #-------------------------------------------------------------SVM-----------------------------------------------------------------------------------
+    println("")
+    println("Ejecución : SVM")
+    println("")
     modelHyperparameters = Dict();
     modelHyperparameters["kernelDegree"] = kernelDegree;
     modelHyperparameters["kernelGamma"] = kernelGamma;
     resultsSVM = Array{Array{Any,1},1}()
 
     for i in kernels
-        #println(i);
         modelHyperparameters["kernel"] = i;
         for j in 1:10
-            #println(" C: ", j*10)  #valor que cambia
             modelHyperparameters["C"] = C*j*10;
             (meanTestAccuracies, stdTestAccuracies, meanTestF1, stdTestF1) = modelCrossValidation(SVM, modelHyperparameters, entrada, salida, crossValidationIndices);
             nuevo =[i, j*10, round(meanTestAccuracies, digits=3),round(stdTestAccuracies, digits=3),round(meanTestF1, digits=3),round(stdTestF1, digits=3)]
             push!(resultsSVM, nuevo)
         end
-    end
-
-    for h in resultsSVM
-        (kernel, C, meanTestAccuracies, stdTestAccuracies, meanTestF1, stdTestF1) = h
-        println("$kernel & $C & $meanTestAccuracies & $stdTestAccuracies & $meanTestF1 & $stdTestF1")   
     end
 
     sorted_resultsSVM = sort(resultsSVM, by=x->x[5], rev=true)
@@ -103,7 +101,9 @@ function aproximacion(entrada, salida, numFolds,numPatrones)
 
 
     #-------------------------------------------------------KNN--------------------------------------------------------------------------------------
-
+    println("")
+    println("Ejecución : KNN")
+    println("")
     resultsKNN = Array{Array{Float64,1},1}()
 
     for j in 1:10
@@ -113,10 +113,6 @@ function aproximacion(entrada, salida, numFolds,numPatrones)
         nuevo =[ numNeighbors,round(meanTestAccuracies, digits=3),round(stdTestAccuracies, digits=3),round(meanTestF1, digits=3),round(stdTestF1, digits=3)]
         push!(resultsKNN, nuevo)
     end
-    for i in resultsKNN
-        (numNeighbors, meanTestAccuracies, stdTestAccuracies, meanTestF1, stdTestF1) = i 
-        println("$numNeighbors & $meanTestAccuracies & $stdTestAccuracies & $meanTestF1 & $stdTestF1")
-    end
 
 
     sorted_resultsKNN = sort(resultsKNN, by=x->x[4], rev=true)
@@ -125,6 +121,9 @@ function aproximacion(entrada, salida, numFolds,numPatrones)
     knn( Dict("numNeighbors" => numNeighbors), entrada, salida);
 
     #-------------------------------------------------------DecisionTrees--------------------------------------------------------------------------------------
+    println("")
+    println("Ejecución : Decision Trees")
+    println("")
     resultsDT = Array{Array{Float64,1},1}()
 
     for maxDepth in maxDepths
@@ -132,10 +131,6 @@ function aproximacion(entrada, salida, numFolds,numPatrones)
         (meanTestAccuracies, stdTestAccuracies, meanTestF1, stdTestF1) = modelCrossValidation(DecisionTree, Dict("maxDepth" => maxDepth), entrada, salida, crossValidationIndices);
         nuevo =[maxDepth,round(meanTestAccuracies, digits=3),round(stdTestAccuracies, digits=3),round(meanTestF1, digits=3),round(stdTestF1, digits=3)]
         push!(resultsDT, nuevo)
-    end
-    for i in resultsDT
-        (depth, meanTestAccuracies, stdTestAccuracies, meanTestF1, stdTestF1) = i 
-        println("$depth & $meanTestAccuracies & $stdTestAccuracies & $meanTestF1 & $stdTestF1")
     end
     sorted_resultsDT = sort(resultsDT, by=x->x[4], rev=true)
     bestDepth = convert(Int, sorted_resultsDT[1][1]);
