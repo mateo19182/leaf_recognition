@@ -456,11 +456,6 @@ function RNA(modelHyperparameters, inputs,targets,crossValidationIndices,numFold
 end#function
 
 
-
-
-
-
-
 ##################################################################################################################################################################################
 # function normalmaxmin32(patrones::Array{Float32,2})
 #     minimo = minimum(patrones[:,3], dims=1);
