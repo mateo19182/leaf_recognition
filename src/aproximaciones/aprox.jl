@@ -74,27 +74,31 @@ function aproximacion(entrada, salida, numFolds,numPatrones)
     modelHyperparameters = Dict();
     modelHyperparameters["kernelDegree"] = kernelDegree;
     modelHyperparameters["kernelGamma"] = kernelGamma;
-    resultsSVM = Array{Array{Float64,1},1}()
+    resultsSVM = Array{Array{Any,1},1}()
 
     for i in kernels
-        println(i);
+        #println(i);
         modelHyperparameters["kernel"] = i;
         for j in 1:10
-            println(" C: ", j*10)  #valor que cambia
+            #println(" C: ", j*10)  #valor que cambia
             modelHyperparameters["C"] = C*j*10;
             (meanTestAccuracies, stdTestAccuracies, meanTestF1, stdTestF1) = modelCrossValidation(SVM, modelHyperparameters, entrada, salida, crossValidationIndices);
-            nuevo =[ j*10, round(meanTestAccuracies, digits=3),round(stdTestAccuracies, digits=3),round(meanTestF1, digits=3),round(stdTestF1, digits=3)]
+            nuevo =[i, j*10, round(meanTestAccuracies, digits=3),round(stdTestAccuracies, digits=3),round(meanTestF1, digits=3),round(stdTestF1, digits=3)]
             push!(resultsSVM, nuevo)
-        end
-        for h in resultsSVM
-            (C, meanTestAccuracies, stdTestAccuracies, meanTestF1, stdTestF1) = h
-            println("$C & $meanTestAccuracies & $stdTestAccuracies & $meanTestF1 & $stdTestF1")   
         end
     end
 
-    modelHyperparameters["kernel"] = "rbf";
-    modelHyperparameters["C"] = 30;
-    println("best paremeters: kernel=rfb, C=30");
+    for h in resultsSVM
+        (kernel, C, meanTestAccuracies, stdTestAccuracies, meanTestF1, stdTestF1) = h
+        println("$kernel & $C & $meanTestAccuracies & $stdTestAccuracies & $meanTestF1 & $stdTestF1")   
+    end
+
+    sorted_resultsSVM = sort(resultsSVM, by=x->x[5], rev=true)
+    bestC = convert(Int, sorted_resultsSVM[1][2]);
+    bestKernel = convert(String, sorted_resultsSVM[1][1])
+    modelHyperparameters["kernel"] = bestKernel;
+    modelHyperparameters["C"] = bestC;
+    println("best paremeters: kernel= $bestKernel, C= $bestC");
     SVM(modelHyperparameters, entrada, salida);
 
 
