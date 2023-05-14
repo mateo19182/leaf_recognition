@@ -29,10 +29,10 @@ function aproximacion(entrada, salida, numFolds,numPatrones)
     # Parametros principales de la RNA y del proceso de entrenamiento
     # topology = [4,3]; # Dos capas ocultas con 4 neuronas la primera y 3 la segunda
     learningRate = 0.01; # Tasa de aprendizaje
-    numMaxEpochs = 1; # Numero maximo de ciclos de entrenamiento
+    numMaxEpochs = 1000; # Numero maximo de ciclos de entrenamiento
     validationRatio = 0.2; # Porcentaje de patrones que se usaran para validacion. Puede ser 0, para no usar validacion
-    maxEpochsVal = 1; # Numero de ciclos en los que si no se mejora el loss en el conjunto de validacion, se para el entrenamiento
-    numRepetitionsANNTraining = 1; # Numero de veces que se va a entrenar la RNA para cada fold por el hecho de ser no determinístico el entrenamiento
+    maxEpochsVal = 10; # Numero de ciclos en los que si no se mejora el loss en el conjunto de validacion, se para el entrenamiento
+    numRepetitionsANNTraining = 50; # Numero de veces que se va a entrenar la RNA para cada fold por el hecho de ser no determinístico el entrenamiento
 
     # --------------------------------------------------------RR.NN.AA.----------------------------------------------------------------
     modelHyperparameters = Dict();
