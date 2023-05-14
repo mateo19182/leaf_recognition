@@ -45,8 +45,8 @@ function aproximacion(entrada, salida, numFolds,numPatrones)
     modelHyperparameters["maxEpochs"] = numMaxEpochs;
     modelHyperparameters["maxEpochsVal"] = maxEpochsVal;
 
-    x= 1:10; # Primera capa
-    y=0:10; # segunda capa
+    x= 1:5; # Primera capa
+    y=0:5; # segunda capa
     resultsRNA = Array{Array{Any,1},1}()
     for j in y,i in x
         if j==0
