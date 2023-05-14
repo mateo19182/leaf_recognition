@@ -22,7 +22,7 @@ function DeepLearning(modelHyperparameters, inputs,targets,crossValidationIndice
 
 
     path_actual = abspath(pwd())
-
+    path_actual = split(path_actual,"src/")[1]
     train_imgs = (load.(path_actual*"/datasets/train_imgs/".*readdir(path_actual*"/datasets/train_imgs/")));
     test_imgs = (load.(path_actual*"/datasets/train_imgs/".*readdir(path_actual*"/datasets/train_imgs/")));
 
