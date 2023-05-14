@@ -64,7 +64,7 @@ modelHyperparameters["validationRatio"] = validationRatio;
 modelHyperparameters["numExecutions"] = numRepetitionsANNTraining;
 modelHyperparameters["maxEpochs"] = numMaxEpochs;
 modelHyperparameters["maxEpochsVal"] = maxEpochsVal;
-
+println("RNA");
 x= 1:10; # Primera capa
 y=0:10; # segunda capa
 resultsRNA = Array{Array{Any,1},1}()
@@ -91,7 +91,7 @@ for h in resultsRNA
             println("desviacionTipicaF1: ", stdTestF1);
             
 end
-
+print("SVM");
 # Entrenamos las SVM
 modelHyperparameters = Dict();
 modelHyperparameters["kernel"] = kernels;

@@ -112,11 +112,7 @@ for i in kernels
     end
     for h in resultsSVM
         (C, meanTestAccuracies, stdTestAccuracies, meanTestF1, stdTestF1) = h
-        println("$C & $meanTestAccuracies & $stdTestAccuracies & $meanTestF1 & $stdTestF1")
-#         println("Accuracy: ", meanTestAccuracies);
-#         println("desviacionTipica: ", stdTestAccuracies);
-#         println("AccuracyF1: ", meanTestF1);
-#         println("desviacionTipicaF1: ", stdTestF1);       
+        println("$C & $meanTestAccuracies & $stdTestAccuracies & $meanTestF1 & $stdTestF1")   
     end
 end
 
