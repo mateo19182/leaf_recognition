@@ -111,7 +111,6 @@ function DeepLearning(modelHyperparameters, inputs,targets,crossValidationIndice
     trainingTargets   = train_labels[crossValidationIndices.!=numFold,:];
     testTargets       = train_labels[crossValidationIndices.==numFold,:];
 
-    
 
     # Creamos el conjunto de entrenamiento: va a ser un vector de tuplas. Cada tupla va a tener
     #  Como primer elemento, las imagenes de ese batch
@@ -122,7 +121,7 @@ function DeepLearning(modelHyperparameters, inputs,targets,crossValidationIndice
     #  Por tanto, cada batch será un par dado por
     #     (train_imgs[:,:,:,indicesBatch], onehotbatch(train_labels[indicesBatch], labels))
     # Sólo resta iterar por cada batch para construir el vector de batches
-  
+
     train_set = [(trainingInputs, onehotbatch(trainingTargets, labels))]; 
 
     # Creamos un batch similar, pero con todas las imagenes de test
@@ -143,84 +142,24 @@ function DeepLearning(modelHyperparameters, inputs,targets,crossValidationIndice
     # Definimos la red con la funcion Chain, que concatena distintas capas
     ann = Chain(
 
-        # Primera capa: convolucion, que opera sobre una imagen 28x28
-        # Argumentos:
-        #  (3, 3): Tamaño del filtro de convolucion
-        #  1=>16:
-        #   1 canal de entrada: una imagen (matriz) de entradas
-        #      En este caso, hay un canal de entrada porque es una imagen en escala de grises
-        #      Si fuese, por ejemplo, una imagen en RGB, serian 3 canales de entrada
-        #   16 canales de salida: se generan 16 filtros
-        #  Es decir, se generan 16 imagenes a partir de la imagen original con filtros 3x3
-        # Entradas a esta capa: matriz 4D de dimension 28 x 28 x 1canal    x <numPatrones>
-        # Salidas de esta capa: matriz 4D de dimension 28 x 28 x 16canales x <numPatrones>
-        Conv((3, 3), 1=>4, pad=(1,1), funcionTransferenciaCapasConvolucionales),
 
-        # Capa maxpool: es una funcion
-        # Divide el tamaño en 2 en el eje x y en el eje y: Pasa imagenes 28x28 a 14x14
-        # Entradas a esta capa: matriz 4D de dimension 28 x 28 x 16canales x <numPatrones>
-        # Salidas de esta capa: matriz 4D de dimension 14 x 14 x 16canales x <numPatrones>
+        Conv((3, 3), 1=>modelHyperparameters["salida"], pad=(1,1), funcionTransferenciaCapasConvolucionales),
+
         MaxPool((2,2)),
 
-        # Tercera capa: segunda convolucion: Le llegan 16 imagenes de tamaño 14x14
-        #  16=>32:
-        #   16 canales de entrada: 16 imagenes (matrices) de entradas
-        #   32 canales de salida: se generan 32 filtros (cada uno toma entradas de 16 imagenes)
-        #  Es decir, se generan 32 imagenes a partir de las 16 imagenes de entrada con filtros 3x3
-        # Entradas a esta capa: matriz 4D de dimension 14 x 14 x 16canales x <numPatrones>
-        # Salidas de esta capa: matriz 4D de dimension 14 x 14 x 32canales x <numPatrones>
-        Conv((3, 3), 4=>8, pad=(1,1), funcionTransferenciaCapasConvolucionales),
+        Conv((3, 3), modelHyperparameters["salida"]=>modelHyperparameters["salida"]*2, pad=(1,1), funcionTransferenciaCapasConvolucionales),
 
-        # Capa maxpool: es una funcion
-        # Divide el tamaño en 2 en el eje x y en el eje y: Pasa imagenes 14x14 a 7x7
-        # Entradas a esta capa: matriz 4D de dimension 14 x 14 x 32canales x <numPatrones>
-        # Salidas de esta capa: matriz 4D de dimension  7 x  7 x 32canales x <numPatrones>
         MaxPool((2,2)),
 
-        # Tercera convolucion, le llegan 32 imagenes de tamaño 7x7
-        #  32=>32:
-        #   32 canales de entrada: 32 imagenes (matrices) de entradas
-        #   32 canales de salida: se generan 32 filtros (cada uno toma entradas de 32 imagenes)
-        #  Es decir, se generan 32 imagenes a partir de las 32 imagenes de entrada con filtros 3x3
-        # Entradas a esta capa: matriz 4D de dimension 7 x 7 x 32canales x <numPatrones>
-        # Salidas de esta capa: matriz 4D de dimension 7 x 7 x 32canales x <numPatrones>
-        Conv((3, 3), 8=>8, pad=(1,1), funcionTransferenciaCapasConvolucionales),
+        Conv((3, 3), modelHyperparameters["salida"]*2=>modelHyperparameters["salida"]*2, pad=(1,1), funcionTransferenciaCapasConvolucionales),
 
-
-        # Capa maxpool: es una funcion
-        # Divide el tamaño en 2 en el eje x y en el eje y: Pasa imagenes 7x7 a 3x3
-        # Entradas a esta capa: matriz 4D de dimension 7 x 7 x 32canales x <numPatrones>
-        # Salidas de esta capa: matriz 4D de dimension 3 x 3 x 32canales x <numPatrones>
         MaxPool((2,2)),
 
-        # Cambia el tamaño del tensot 3D en uno 2D
-        #  Pasa matrices H x W x C x N a matrices H*W*C x N
-        #  Es decir, cada patron de tamaño 3 x 3 x 32 lo convierte en un array de longitud 3*3*32
-        # Entradas a esta capa: matriz 4D de dimension 3 x 3 x 32canales x <numPatrones>
-        # Salidas de esta capa: matriz 4D de dimension 288 x <numPatrones>
         x -> reshape(x, :, size(x, 4)),
 
-        # Capa totalmente conectada
-        #  Como una capa oculta de un perceptron multicapa "clasico"
-        #  Parametros: numero de entradas (288) y numero de salidas (10)
-        #   Se toman 10 salidas porque tenemos 10 clases (numeros de 0 a 9)
-        # Entradas a esta capa: matriz 4D de dimension 288 x <numPatrones>
-        # Salidas de esta capa: matriz 4D de dimension  10 x <numPatrones>
-        
-        #Esta entrada es la que hay que solucionar
-        Dense(32768, 3),
+        Dense(modelHyperparameters["salida"] * 4096 * 2  , 3),
 
-        # Finalmente, capa softmax
-        #  Toma las salidas de la capa anterior y aplica la funcion softmax de tal manera
-        #   que las 10 salidas sean valores entre 0 y 1 con las probabilidades de que un patron
-        #   sea de una clase determinada (es decir, las probabilidades de que sea un digito determinado)
-        #  Y, ademas, la suma de estas probabilidades sea igual a 1
         softmax
-
-        # Cuidado: En esta RNA se aplica la funcion softmax al final porque se tienen varias clases
-        # Si sólo se tuviesen 2 clases, solo se tiene una salida, y no seria necesario utilizar la funcion softmax
-        #  En su lugar, la capa totalmente conectada tendria como funcion de transferencia una sigmoidal (devuelve valores entre 0 y 1)
-        #  Es decir, no habria capa softmax, y la capa totalmente conectada seria la ultima, y seria Dense(288, 10, σ)
 
     )
 
@@ -331,4 +270,6 @@ function DeepLearning(modelHyperparameters, inputs,targets,crossValidationIndice
             criterioFin = true;
         end
     end
+
+    return mejorPrecision, mejorPrecision
 end
