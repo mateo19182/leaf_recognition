@@ -24,7 +24,7 @@ function DeepLearning(modelHyperparameters, inputs,targets,crossValidationIndice
     path_actual = abspath(pwd())
 
     train_imgs = (load.(path_actual*"/datasets/train_imgs/".*readdir(path_actual*"/datasets/train_imgs/")));
-    test_imgs = (load.(path_actual*"/datasets/test_imgs/".*readdir(path_actual*"/datasets/test_imgs/")));
+    test_imgs = (load.(path_actual*"/datasets/train_imgs/".*readdir(path_actual*"/datasets/train_imgs/")));
 
     #hacer todas las imagenes del mismo tamaño con la moda d x e y;
     #image_sizes = size.(train_imgs);
@@ -44,7 +44,7 @@ function DeepLearning(modelHyperparameters, inputs,targets,crossValidationIndice
     # push!(train_labels, aux);
     test_labels  =  [];
 
-    test_labels      = convert.(String, extract.((path_actual*"/datasets/test_imgs/".*readdir(path_actual*"/datasets/test_imgs/"))))
+    test_labels      = convert.(String, extract.((path_actual*"/datasets/train_imgs/".*readdir(path_actual*"/datasets/train_imgs/"))))
 
     # push!(test_labels, aux1);
 
@@ -81,7 +81,7 @@ function DeepLearning(modelHyperparameters, inputs,targets,crossValidationIndice
 
     println("Tamaño de la matriz de entrenamiento: ", size(train_imgs))
     println("Tamaño de la matriz de test:          ", size(test_imgs))
-
+    
 
     # Cuidado: en esta base de datos las imagenes ya estan con valores entre 0 y 1
     # En otro caso, habria que normalizarlas
@@ -102,8 +102,16 @@ function DeepLearning(modelHyperparameters, inputs,targets,crossValidationIndice
     println("He creado ", length(gruposIndicesBatch), " grupos de indices para distribuir los patrones en batches");
 
     numFolds = 10;
-    crossValidationIndices = crossvalidation(batch_size, numFolds);
-    println(crossValidationIndices)
+    crossValidationIndices= crossvalidation(batch_size, numFolds);
+
+    trainingInputs    = train_imgs[:,:,:,crossValidationIndices.!=numFold];
+    testInputs        = train_imgs[:,:,:,crossValidationIndices.==numFold];
+    println(size(train_labels))
+    println(size(crossValidationIndices))
+    trainingTargets   = train_labels[crossValidationIndices.!=numFold,:];
+    testTargets       = train_labels[crossValidationIndices.==numFold,:];
+
+    
 
     # Creamos el conjunto de entrenamiento: va a ser un vector de tuplas. Cada tupla va a tener
     #  Como primer elemento, las imagenes de ese batch
@@ -114,14 +122,17 @@ function DeepLearning(modelHyperparameters, inputs,targets,crossValidationIndice
     #  Por tanto, cada batch será un par dado por
     #     (train_imgs[:,:,:,indicesBatch], onehotbatch(train_labels[indicesBatch], labels))
     # Sólo resta iterar por cada batch para construir el vector de batches
-    train_set = [ (train_imgs[:,:,:,indicesBatch], onehotbatch(train_labels[indicesBatch], labels)) for indicesBatch in gruposIndicesBatch]; 
+  
+    train_set = [(trainingInputs, onehotbatch(trainingTargets, labels))]; 
 
     # Creamos un batch similar, pero con todas las imagenes de test
-    test_set = (test_imgs, onehotbatch(test_labels, labels));
+    test_set = (testInputs, onehotbatch(testTargets, labels));
 
-    # Hago esto simplemente para liberar memoria, las variables train_imgs y test_imgs ocupan mucho y ya no las vamos a usar
+    # Hago esto simplemente para liberar memoria, las var   iables train_imgs y test_imgs ocupan mucho y ya no las vamos a usar
     train_imgs = nothing;
     test_imgs = nothing;
+    trainingInputs    = nothing;
+    testInputs        = nothing;
     GC.gc(); # Pasar el recolector de basura
 
 
@@ -216,7 +227,7 @@ function DeepLearning(modelHyperparameters, inputs,targets,crossValidationIndice
 
 
 
-    # # Vamos a probar la RNA capa por capa y poner algunos datos de cada capa
+    # Vamos a probar la RNA capa por capa y poner algunos datos de cada capa
     # # Usaremos como entrada varios patrones de un batch
     numBatchCoger = 1; numImagenEnEseBatch = [12, 6];
     # # Para coger esos patrones de ese batch:
